@@ -8,6 +8,7 @@ import OnBoardingScreen3 from './OnBoardingScreen3';
 import OTPScreen from './OTPScreen';
 import VerificationScreen from './VerificationScreen';
 import BottomNavigator from './BottomNavigator';
+import ContactList from './ContactList';
 
 const Stack = createStackNavigator();
 const AppNavigator = () => {
@@ -41,6 +42,11 @@ const AppNavigator = () => {
       <Stack.Screen
         name="VerificationScreen"
         component={VerificationScreen}
+        options={{headerShown: false}}
+      />
+      <Stack.Screen
+        name="ContactList"
+        component={ContactList}
         options={{headerShown: false}}
       />
       <Stack.Screen

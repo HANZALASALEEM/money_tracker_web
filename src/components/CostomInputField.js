@@ -24,11 +24,12 @@ const styles = StyleSheet.create({
     height: 50,
     alignSelf: 'center',
     marginVertical: 5,
-    position: 'absolute',
     backgroundColor: COLOR.lightGray,
     borderRadius: 10,
     flexDirection: 'row',
     alignItems: 'center',
+    borderWidth: 1,
+    borderColor: COLOR.darkGray,
   },
   input: {
     width: '90%',

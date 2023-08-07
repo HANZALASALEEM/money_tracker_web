@@ -172,6 +172,10 @@ import {
 import React, {useState} from 'react';
 import {auth} from '../firebase/Index';
 const {height, width} = Dimensions.get('window');
+import {
+  heightPercentageToDP as hp,
+  widthPercentageToDP as wp,
+} from 'react-native-responsive-screen';
 
 const OTPScreen = ({navigation}) => {
   const [confirm, setConfirm] = useState(null);
