@@ -30,8 +30,11 @@ const LoanAccounts = ({navigation}) => {
         console.log('Permission: ', res);
         Contacts.getAll()
           .then(contacts => {
+            // const sortedContacts = contacts.sort((a, b) =>
+            //   a.displayName.localeCompare(b.displayName),
+            // );
             navigation.navigate('ContactList', {contacts});
-            //console.log(contacts);
+            //console.log(sortedContacts);
           })
           .catch(e => {
             console.log(e);

@@ -6,7 +6,7 @@ import {
   TouchableOpacity,
   Image,
 } from 'react-native';
-import React from 'react';
+import React, {useEffect, useState} from 'react';
 import COLOR from '../assets/colors/Color';
 import Header from '../components/Header';
 import CostomInputField from '../components/CostomInputField';
@@ -14,42 +14,108 @@ import {
   widthPercentageToDP as wp,
   heightPercentageToDP as hp,
 } from 'react-native-responsive-screen';
+import {db} from '../firebase/Index';
+import {
+  collection,
+  addDoc,
+  doc,
+  serverTimestamp,
+  onSnapshot,
+  orderBy,
+  query,
+} from 'firebase/firestore';
+import CostomButton from '../components/CostomButton';
 
-const ContactList = ({route}) => {
+const ContactList = ({route, navigation}) => {
   const {contacts, onSelectContact} = route.params;
+  const [search, setSearch] = useState();
+  // useEffect(() => {
+  //   const sortedContacts = contacts.sort((a, b) =>
+  //     a.displayName.localeCompare(b.displayName),
+  //   );
+  // }, []);
+  const [searchedList, setSearchedList] = useState(contacts);
+
+  const filterData = text => {
+    let newData = contacts.filter(item => {
+      return item.displayNam.toLowerCase().match(text.toLowerCase());
+    });
+    setSearchedList(newData);
+  };
+
+  const handleContactsButton = async item => {
+    try {
+      const chatRef = doc(collection(db, 'Chats'), 'person');
+      const messagesRef = collection(chatRef, 'messages');
+
+      await addDoc(messagesRef, {
+        Name: item.displayName,
+        PhoneNumber: item.phoneNumbers[0].number,
+      });
+
+      console.log('Message sent successfully!');
+    } catch (error) {
+      console.error('Error sending message: ', error);
+    }
+  };
   return (
     <View style={styles.container}>
-      <Header />
+      <Header
+        leftIcon={require('../assets/icons/left-arrow.png')}
+        onClickLeftIcon={() => {
+          navigation.goBack();
+        }}
+      />
       <View style={styles.inputFieldView}>
         <CostomInputField
+          value={search}
           placeholder={'Search Costumer'}
           imgSource={require('../assets/icons/find.png')}
+          ChangeText={text => {
+            setSearch(text);
+            filterData(text);
+          }}
         />
       </View>
       <View style={styles.contactListTagContainer}>
         <Text>ContactList</Text>
       </View>
       <FlatList
-        data={contacts}
+        data={searchedList}
         keyExtractor={contacts.recordID}
         renderItem={({item, index}) => {
           return (
-            <TouchableOpacity style={styles.eachContactContainer}>
+            <TouchableOpacity
+              style={styles.eachContactContainer}
+              onPress={item => handleContactsButton(item)}>
               <View style={styles.contactInfoContainer}>
-                <Image
-                  source={require('../assets/icons/profile-user.png')}
-                  style={styles.icon}
-                />
+                {!item.thumbnailPath == '' ? (
+                  <Image
+                    //source={require('../assets/icons/profile-user.png')}
+                    style={styles.icon}
+                    source={{uri: item.thumbnailPath}}
+                  />
+                ) : (
+                  <Image
+                    source={require('../assets/icons/profile-user.png')}
+                    style={styles.icon}
+                    // source={{uri: item.thumbnailPath}}
+                  />
+                )}
+
                 <View>
-                  <Text>{item.displayName}</Text>
+                  <Text style={styles.contactName}>{item.displayName}</Text>
                   <Text>{item.phoneNumbers[0].number}</Text>
                 </View>
-                <Text>{item.phoneNumbers[0].label}</Text>
+                <Text style={styles.contactLable}>
+                  {item.phoneNumbers[0].label}
+                </Text>
               </View>
             </TouchableOpacity>
           );
         }}
       />
+      <CostomButton />
     </View>
   );
 };
@@ -76,9 +142,10 @@ const styles = StyleSheet.create({
     height: 60,
     borderWidth: 0.5,
     backgroundColor: COLOR.lightGray,
-    marginBottom: 9,
+
     paddingHorizontal: 10,
-    borderRadius: 5,
+    borderBottomWidth: 1,
+    borderColor: COLOR.boldGray,
   },
   contactInfoContainer: {
     flexDirection: 'row',
@@ -89,5 +156,15 @@ const styles = StyleSheet.create({
   icon: {
     width: 40,
     height: 40,
+    marginHorizontal: 10,
+    borderRadius: 20,
+  },
+  contactName: {
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  contactLable: {
+    right: 4,
+    position: 'absolute',
   },
 });
