@@ -16,7 +16,7 @@ import ModelView from '../components/ModelView';
 import firestore from '@react-native-firebase/firestore';
 import uuid from 'react-native-uuid';
 import storage from '@react-native-firebase/storage';
-const AddCostumer = ({navigation}) => {
+const EditProfile = ({navigation}) => {
   const [name, setName] = useState();
   const [isVisibleModal, setIsVisibleModal] = useState(false);
   const [image, setImage] = useState();
@@ -147,7 +147,7 @@ const AddCostumer = ({navigation}) => {
   );
 };
 
-export default AddCostumer;
+export default EditProfile;
 
 const styles = StyleSheet.create({
   container: {
@@ -162,7 +162,7 @@ const styles = StyleSheet.create({
   imageContainer: {
     width: 270,
     height: 130,
-    backgroundColor: COLOR.lightGray,
+    backgroundColor: COLOR.darkGray,
     alignSelf: 'center',
     borderRadius: 15,
     borderWidth: 1.3,

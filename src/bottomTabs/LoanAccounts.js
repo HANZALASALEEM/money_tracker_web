@@ -15,10 +15,12 @@ import COLOR from '../assets/colors/Color';
 import CostomInputField from '../components/CostomInputField';
 import Contacts from 'react-native-contacts';
 import {PermissionsAndroid} from 'react-native';
+import Drawer from '../components/Drawer';
 
 const LoanAccounts = ({navigation}) => {
   const [contactsAvalible, setContactAvalible] = useState(false);
   const [contacts, setContacts] = useState([]);
+  const [isVisibleModal, setIsVisibleModal] = useState(false);
 
   const getContacts = () => {
     PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.READ_CONTACTS, {
@@ -48,7 +50,11 @@ const LoanAccounts = ({navigation}) => {
     <View style={styles.container}>
       <StatusBar backgroundColor={COLOR.purple} />
       <View style={styles.navBar}>
-        <TouchableOpacity style={styles.iconContainer}>
+        <TouchableOpacity
+          style={styles.iconContainer}
+          onPress={() => {
+            setIsVisibleModal(true);
+          }}>
           <Image
             source={require('../assets/icons/menu.png')}
             style={styles.icon}
@@ -104,6 +110,16 @@ const LoanAccounts = ({navigation}) => {
         </View>
       )}
       {/* <View style={styles.addContactsButton}></View> */}
+      <Drawer
+        isVisibleModal={isVisibleModal}
+        firstOption={'Edit Profile'}
+        secondOption={'About us'}
+        onClickClose={() => setIsVisibleModal(false)}
+        onClickFirstOption={() => {}}
+        onClickSecondOption={() => {}}
+        firstIcon={require('../assets/icons/profile-purple.png')}
+        secondIcon={require('../assets/icons/info.png')}
+      />
     </View>
   );
 };
@@ -113,6 +129,7 @@ export default LoanAccounts;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: COLOR.white,
   },
   navBar: {
     backgroundColor: COLOR.purple,

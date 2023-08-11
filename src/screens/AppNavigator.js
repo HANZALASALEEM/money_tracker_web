@@ -10,6 +10,7 @@ import VerificationScreen from './VerificationScreen';
 import BottomNavigator from './BottomNavigator';
 import ContactList from './ContactList';
 import AddCostumer from './AddCostumer';
+import EditProfile from './EditProfile';
 
 const Stack = createStackNavigator();
 const AppNavigator = () => {
@@ -53,6 +54,11 @@ const AppNavigator = () => {
       <Stack.Screen
         name="AddCostumer"
         component={AddCostumer}
+        options={{headerShown: false}}
+      />
+      <Stack.Screen
+        name="EditProfile"
+        component={EditProfile}
         options={{headerShown: false}}
       />
       <Stack.Screen
