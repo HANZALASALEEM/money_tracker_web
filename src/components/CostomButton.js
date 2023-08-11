@@ -1,12 +1,12 @@
-import {StyleSheet, Text, View} from 'react-native';
+import {StyleSheet, Text, View, TouchableOpacity} from 'react-native';
 import React from 'react';
 import COLOR from '../assets/colors/Color';
 
-const CostomButton = () => {
+const CostomButton = ({title, onClick}) => {
   return (
-    <View style={styles.container}>
-      <Text>CostomButton</Text>
-    </View>
+    <TouchableOpacity style={styles.container} onPress={onClick}>
+      <Text style={styles.title}>{title}</Text>
+    </TouchableOpacity>
   );
 };
 
@@ -18,5 +18,14 @@ const styles = StyleSheet.create({
     height: 50,
     backgroundColor: COLOR.purple,
     position: 'absolute',
+    alignSelf: 'center',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: 35,
+  },
+  title: {
+    fontSize: 18,
+    color: COLOR.white,
+    fontWeight: '700',
   },
 });

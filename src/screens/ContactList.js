@@ -5,6 +5,7 @@ import {
   FlatList,
   TouchableOpacity,
   Image,
+  StatusBar,
 } from 'react-native';
 import React, {useEffect, useState} from 'react';
 import COLOR from '../assets/colors/Color';
@@ -14,52 +15,38 @@ import {
   widthPercentageToDP as wp,
   heightPercentageToDP as hp,
 } from 'react-native-responsive-screen';
-import {db} from '../firebase/Index';
-import {
-  collection,
-  addDoc,
-  doc,
-  serverTimestamp,
-  onSnapshot,
-  orderBy,
-  query,
-} from 'firebase/firestore';
 import CostomButton from '../components/CostomButton';
-
+import firestore from '@react-native-firebase/firestore';
+import uuid from 'react-native-uuid';
 const ContactList = ({route, navigation}) => {
   const {contacts, onSelectContact} = route.params;
   const [search, setSearch] = useState();
-  // useEffect(() => {
-  //   const sortedContacts = contacts.sort((a, b) =>
-  //     a.displayName.localeCompare(b.displayName),
-  //   );
-  // }, []);
   const [searchedList, setSearchedList] = useState(contacts);
 
   const filterData = text => {
     let newData = contacts.filter(item => {
-      return item.displayNam.toLowerCase().match(text.toLowerCase());
+      // return item.displayNam.toLowerCase().match(text.toLowerCase());
+      return item.displayName.toLowerCase().includes(text.toLowerCase());
     });
     setSearchedList(newData);
   };
 
+  const userId = uuid.v4();
   const handleContactsButton = async item => {
-    try {
-      const chatRef = doc(collection(db, 'Chats'), 'person');
-      const messagesRef = collection(chatRef, 'messages');
-
-      await addDoc(messagesRef, {
-        Name: item.displayName,
-        PhoneNumber: item.phoneNumbers[0].number,
+    firestore()
+      .collection('Users')
+      .doc(userId)
+      .set({
+        name: item.displayName,
+        number: item.phoneNumbers[0].number,
+      })
+      .then(() => {
+        console.log('User added!');
       });
-
-      console.log('Message sent successfully!');
-    } catch (error) {
-      console.error('Error sending message: ', error);
-    }
   };
   return (
     <View style={styles.container}>
+      <StatusBar backgroundColor={COLOR.purple} />
       <Header
         leftIcon={require('../assets/icons/left-arrow.png')}
         onClickLeftIcon={() => {
@@ -82,12 +69,12 @@ const ContactList = ({route, navigation}) => {
       </View>
       <FlatList
         data={searchedList}
-        keyExtractor={contacts.recordID}
+        keyExtractor={item => item.recordID}
         renderItem={({item, index}) => {
           return (
             <TouchableOpacity
               style={styles.eachContactContainer}
-              onPress={item => handleContactsButton(item)}>
+              onPress={() => handleContactsButton(item)}>
               <View style={styles.contactInfoContainer}>
                 {!item.thumbnailPath == '' ? (
                   <Image
@@ -115,7 +102,14 @@ const ContactList = ({route, navigation}) => {
           );
         }}
       />
-      <CostomButton />
+      <View style={styles.buttonContainer}>
+        <CostomButton
+          title={'Add Costumer'}
+          onClick={() => {
+            navigation.navigate('AddCostumer');
+          }}
+        />
+      </View>
     </View>
   );
 };
@@ -166,5 +160,8 @@ const styles = StyleSheet.create({
   contactLable: {
     right: 4,
     position: 'absolute',
+  },
+  buttonContainer: {
+    bottom: 70,
   },
 });

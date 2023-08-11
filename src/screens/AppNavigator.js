@@ -9,6 +9,7 @@ import OTPScreen from './OTPScreen';
 import VerificationScreen from './VerificationScreen';
 import BottomNavigator from './BottomNavigator';
 import ContactList from './ContactList';
+import AddCostumer from './AddCostumer';
 
 const Stack = createStackNavigator();
 const AppNavigator = () => {
@@ -47,6 +48,11 @@ const AppNavigator = () => {
       <Stack.Screen
         name="ContactList"
         component={ContactList}
+        options={{headerShown: false}}
+      />
+      <Stack.Screen
+        name="AddCostumer"
+        component={AddCostumer}
         options={{headerShown: false}}
       />
       <Stack.Screen
