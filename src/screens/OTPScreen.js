@@ -221,7 +221,7 @@ const OTPScreen = ({navigation}) => {
           <View style={styles.inputIconContainer}>
             <Image
               style={styles.inputIcon}
-              source={require('../assets/icons/phone-call.png')}
+              source={require('../assets/icons/call.png')}
               resizeMode="contain" // Ensure the icon scales properly
             />
           </View>

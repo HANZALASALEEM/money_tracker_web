@@ -9,7 +9,11 @@ import {
   Image,
 } from 'react-native';
 import React from 'react';
-
+import {
+  heightPercentageToDP as hp,
+  widthPercentageToDP as wp,
+} from 'react-native-responsive-screen';
+import COLOR from '../assets/colors/Color';
 const OnBoardingScreen2 = ({navigation}) => {
   return (
     <View style={styles.container}>
@@ -72,10 +76,10 @@ export default OnBoardingScreen2;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: COLOR.white,
   },
   skipContainer: {
-    height: '5%',
+    height: hp('5%'),
     backgroundColor: '#fff',
     justifyContent: 'center',
   },
@@ -85,15 +89,14 @@ const styles = StyleSheet.create({
     left: Dimensions.get('screen').width - 60,
   },
   imageContainer: {
-    height: '50%',
+    height: hp('50%'),
   },
   image: {
     width: '100%',
     height: '100%',
   },
   titleContainer: {
-    height: '5%',
-
+    height: hp('5%'),
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -104,7 +107,7 @@ const styles = StyleSheet.create({
     fontFamily: 'Roboto-Bold',
   },
   descriptionContainer: {
-    height: '15%',
+    height: hp('15%'),
     marginHorizontal: 20,
     justifyContent: 'center',
     alignItems: 'center',
@@ -116,7 +119,7 @@ const styles = StyleSheet.create({
     fontFamily: 'Roboto-Regular',
   },
   DotsMajorContainer: {
-    height: '5%',
+    height: hp('5%'),
 
     justifyContent: 'space-between',
     flexDirection: 'row',
@@ -146,7 +149,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#CCCCCC',
   },
   buttonMajorContainer: {
-    height: '20%',
+    height: hp('17%'),
     width: '100%',
 
     flexDirection: 'row',

@@ -9,7 +9,12 @@ import {
   Image,
 } from 'react-native';
 import React from 'react';
-
+import {
+  heightPercentageToDP as hp,
+  widthPercentageToDP as wp,
+} from 'react-native-responsive-screen';
+import COLOR from '../assets/colors/Color';
+import {ColorSpace} from 'react-native-reanimated';
 const OnBoardingScreen3 = ({navigation}) => {
   return (
     <View style={styles.container}>
@@ -50,7 +55,7 @@ const OnBoardingScreen3 = ({navigation}) => {
         <TouchableOpacity
           style={styles.forwordButton}
           onPress={() => {
-            navigation.navigate('OTPScreen');
+            navigation.navigate('SignUp');
           }}>
           <Text style={styles.forwordButtonText}>Get Started</Text>
         </TouchableOpacity>
@@ -64,52 +69,52 @@ export default OnBoardingScreen3;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: COLOR.white,
   },
   skipContainer: {
-    height: '5%',
-    backgroundColor: '#fff',
+    height: hp('5%'),
+    backgroundColor: COLOR.white,
     justifyContent: 'center',
   },
   skipContainerText: {
-    color: '#e1e1e1',
+    color: COLOR.lightGray,
     fontSize: 20,
     left: Dimensions.get('screen').width - 60,
   },
   imageContainer: {
-    height: '50%',
+    height: hp('50%'),
   },
   image: {
     width: '100%',
     height: '100%',
   },
   titleContainer: {
-    height: '5%',
+    height: hp('5%'),
 
     justifyContent: 'center',
     alignItems: 'center',
   },
   title: {
-    color: '#7e1d6c',
+    color: COLOR.purple,
     fontSize: 25,
     fontWeight: 'bold',
     fontFamily: 'Roboto-Bold',
   },
   descriptionContainer: {
-    height: '15%',
+    height: hp('15%'),
     marginHorizontal: 20,
 
     justifyContent: 'center',
     alignItems: 'center',
   },
   description: {
-    color: '#ABABAB',
+    color: COLOR.darkGray,
     fontSize: 14,
     textAlign: 'center',
     fontFamily: 'Roboto-Regular',
   },
   DotsMajorContainer: {
-    height: '5%',
+    height: hp('5%'),
 
     justifyContent: 'space-between',
     flexDirection: 'row',
@@ -130,16 +135,16 @@ const styles = StyleSheet.create({
     height: 10,
     width: 16,
     borderRadius: 4,
-    backgroundColor: '#7e1d6c',
+    backgroundColor: COLOR.purple,
   },
   nonSelectedDotsContainer: {
     height: 6,
     width: 14,
     borderRadius: 4,
-    backgroundColor: '#CCCCCC',
+    backgroundColor: COLOR.darkGray,
   },
   buttonMajorContainer: {
-    height: '20%',
+    height: hp('17%'),
     width: '100%',
     alignItems: 'center',
     flexDirection: 'row',
@@ -148,13 +153,13 @@ const styles = StyleSheet.create({
   forwordButton: {
     width: 200,
     height: 70,
-    backgroundColor: '#7e1d6c',
+    backgroundColor: COLOR.purple,
     borderRadius: 35,
     justifyContent: 'center',
     alignItems: 'center',
   },
   forwordButtonText: {
-    color: '#ffffff',
+    color: COLOR.white,
     fontSize: 18,
     fontFamily: 'Roboto-Regular',
   },
