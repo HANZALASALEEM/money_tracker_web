@@ -74,7 +74,7 @@ const EditProfile = ({navigation}) => {
   const userId = uuid.v4();
   const saveData = url => {
     firestore()
-      .collection('Profile')
+      .collection('Users')
       .doc(auth().currentUser.uid)
       .update({
         name: name,

@@ -18,7 +18,7 @@ const SignUp = ({navigation}) => {
   const userId = uuid.v4();
   const storeProfile = () => {
     firestore()
-      .collection('Profile')
+      .collection('Users')
       .doc(auth().currentUser.uid) // Automatically generates a unique document ID
       .set({
         email: email,

@@ -13,6 +13,7 @@ import AddCostumer from './AddCostumer';
 import EditProfile from './EditProfile';
 import SignUp from './SignUp';
 import Login from './Login';
+import AccountDetails from './AccountDetails';
 
 const Stack = createStackNavigator();
 const AppNavigator = () => {
@@ -71,6 +72,11 @@ const AppNavigator = () => {
       <Stack.Screen
         name="EditProfile"
         component={EditProfile}
+        options={{headerShown: false}}
+      />
+      <Stack.Screen
+        name="AccountDetails"
+        component={AccountDetails}
         options={{headerShown: false}}
       />
       <Stack.Screen

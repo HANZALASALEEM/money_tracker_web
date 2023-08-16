@@ -16,67 +16,70 @@ import ModelView from '../components/ModelView';
 import firestore from '@react-native-firebase/firestore';
 import uuid from 'react-native-uuid';
 import storage from '@react-native-firebase/storage';
+import auth from '@react-native-firebase/auth';
 const AddCostumer = ({navigation}) => {
   const [name, setName] = useState();
   const [isVisibleModal, setIsVisibleModal] = useState(false);
   const [image, setImage] = useState();
   const [fileName, setFileName] = useState();
 
-  const handleImagePicker = () => {
-    setIsVisibleModal(true);
-  };
+  // const handleImagePicker = () => {
+  //   setIsVisibleModal(true);
+  // };
 
-  const openGallery = async () => {
-    const options = {
-      mediaType: 'photo',
-      quality: 1,
-    };
-    launchImageLibrary(options, response => {
-      if (response.didCancel) {
-        console.log('Image picker was canceled');
-      } else if (response.error) {
-        console.error('Image picker error: ', response.error);
-      } else {
-        console.log('Selected image:', response.assets[0].uri);
-        // You can do something with the selected image URI here
-      }
-      setImage(response.assets[0].uri);
-      setFileName(response.assets[0].fileName);
-    });
-    setIsVisibleModal(false);
-    uploadImage();
-  };
+  // const openGallery = async () => {
+  //   const options = {
+  //     mediaType: 'photo',
+  //     quality: 1,
+  //   };
+  //   launchImageLibrary(options, response => {
+  //     if (response.didCancel) {
+  //       console.log('Image picker was canceled');
+  //     } else if (response.error) {
+  //       console.error('Image picker error: ', response.error);
+  //     } else {
+  //       console.log('Selected image:', response.assets[0].uri);
+  //       // You can do something with the selected image URI here
+  //     }
+  //     setImage(response.assets[0].uri);
+  //     setFileName(response.assets[0].fileName);
+  //   });
+  //   setIsVisibleModal(false);
+  //   uploadImage();
+  // };
 
-  const openCamera = async () => {
-    const options = {
-      mediaType: 'photo',
-      quality: 1,
-    };
-    launchCamera(options, response => {
-      if (response.didCancel) {
-        console.log('Image picker was canceled');
-      } else if (response.error) {
-        console.error('Image picker error: ', response.error);
-      } else {
-        console.log('Selected image:', response.assets[0].uri);
-        // You can do something with the selected image URI here
-      }
+  // const openCamera = async () => {
+  //   const options = {
+  //     mediaType: 'photo',
+  //     quality: 1,
+  //   };
+  //   launchCamera(options, response => {
+  //     if (response.didCancel) {
+  //       console.log('Image picker was canceled');
+  //     } else if (response.error) {
+  //       console.error('Image picker error: ', response.error);
+  //     } else {
+  //       console.log('Selected image:', response.assets[0].uri);
+  //       // You can do something with the selected image URI here
+  //     }
 
-      setImage(response.assets[0].uri);
-      setFileName(response.assets[0].fileName);
-    });
-    setIsVisibleModal(false);
-    uploadImage();
-  };
+  //     setImage(response.assets[0].uri);
+  //     setFileName(response.assets[0].fileName);
+  //   });
+  //   setIsVisibleModal(false);
+  //   uploadImage();
+  // };
 
   const userId = uuid.v4();
-  const saveData = url => {
+  const saveData = () => {
     firestore()
+      .collection('Users')
+      .doc(auth().currentUser.uid)
       .collection('Contacts')
       .doc(userId)
       .set({
         name: name,
-        image: url,
+        id: userId,
       })
       .then(() => {
         console.log('User added!');
@@ -102,10 +105,8 @@ const AddCostumer = ({navigation}) => {
           navigation.goBack();
         }}
       />
-      <Text style={styles.instruction}>
-        Please upload Costumer Photo and Name
-      </Text>
-      <TouchableOpacity
+      <Text style={styles.instruction}>Please Enter Customer Name</Text>
+      {/* <TouchableOpacity
         style={styles.imageContainer}
         onPress={handleImagePicker}>
         {image !== null ? (
@@ -119,7 +120,7 @@ const AddCostumer = ({navigation}) => {
             style={styles.icon}
           />
         )}
-      </TouchableOpacity>
+      </TouchableOpacity> */}
       <View style={styles.inputContainer}>
         <CostomInputField
           value={name}
@@ -133,7 +134,7 @@ const AddCostumer = ({navigation}) => {
       <View style={styles.buttonContainer}>
         <CostomButton title={'Add Costumer'} onClick={saveData} />
       </View>
-      <ModelView
+      {/* <ModelView
         isVisibleModal={isVisibleModal}
         firstOption={'Open Camera'}
         secondOption={'Open Gallery'}
@@ -142,7 +143,7 @@ const AddCostumer = ({navigation}) => {
         onClickSecondOption={openGallery}
         firstIcon={require('../assets/icons/camera.png')}
         secondIcon={require('../assets/icons/gallery.png')}
-      />
+      /> */}
     </View>
   );
 };

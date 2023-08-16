@@ -35,17 +35,17 @@ const ContactList = ({route, navigation}) => {
   const userId = uuid.v4();
   const handleContactsButton = async item => {
     firestore()
-      .collection('ContactList')
+      .collection('Users')
       .doc(auth().currentUser.uid)
       .collection('Contacts')
-      .doc()
+      .doc(userId)
       .set({
         name: item.displayName,
         number: item.phoneNumbers[0].number,
+        id: userId,
       })
       .then(() => {
         console.log('User added!');
-        console.log(searchedList);
       });
   };
   return (
