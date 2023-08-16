@@ -7,13 +7,14 @@ import {
   TouchableOpacity,
   Image,
 } from 'react-native';
-import React from 'react';
+import React, {useState, useEffect} from 'react';
 import COLOR from '../assets/colors/Color';
 import {
   heightPercentageToDP as hp,
   widthPercentageToDP as wp,
 } from 'react-native-responsive-screen';
-
+import auth from '@react-native-firebase/auth';
+import firestore from '@react-native-firebase/firestore';
 const Drawer = ({
   isVisibleModal,
   firstOption,
@@ -25,6 +26,30 @@ const Drawer = ({
   secondIcon,
   navigation,
 }) => {
+  const [user, setUser] = useState({}); // Initialize an empty user object
+
+  useEffect(() => {
+    const readUserProfile = async () => {
+      const userSnapshot = await firestore()
+        .collection('Profile')
+        .doc(auth().currentUser.uid)
+        .get();
+
+      if (userSnapshot.exists) {
+        // Check if the document exists
+        const userData = userSnapshot.data(); // Access data from the document
+        setUser(userData);
+      }
+    };
+    readUserProfile();
+  }, []);
+
+  const signOut = () => {
+    auth()
+      .signOut()
+      .then(() => console.log('User signed out!'));
+    navigation.navigate('SignUp');
+  };
   return (
     <Modal visible={isVisibleModal} transparent>
       <View style={styles.mainView}>
@@ -38,17 +63,23 @@ const Drawer = ({
             />
           </TouchableOpacity>
           <View style={styles.imageContainer}>
-            <Image
-              source={require('../assets/icons/profile-user.png')}
-              style={styles.image}
-            />
-            <Text style={styles.name}>Name</Text>
+            {user.photo === null ? (
+              <Image
+                source={require('../assets/icons/profile-user.png')}
+                style={styles.image}
+              />
+            ) : (
+              <Image source={{uri: user.photo}} style={styles.image} />
+            )}
+            {user.name === null ? (
+              <Text style={styles.name}></Text>
+            ) : (
+              <Text style={styles.name}>{user.name}</Text>
+            )}
           </View>
           <TouchableOpacity
             style={[styles.btn, {marginTop: 0}]}
-            onPress={() => {
-              navigation.navigate('EditProfile');
-            }}>
+            onPress={() => onClickFirstOption()}>
             <Image source={firstIcon} style={styles.icon} />
             <Text style={styles.btnText}>Edit Profile</Text>
           </TouchableOpacity>
@@ -60,7 +91,7 @@ const Drawer = ({
           </TouchableOpacity>
           <TouchableOpacity
             style={[styles.logOut, {marginTop: 0}]}
-            onPress={() => {}}>
+            onPress={signOut}>
             <Image source={secondIcon} style={styles.icon} />
             <Text style={styles.btnText}>Log Out</Text>
           </TouchableOpacity>

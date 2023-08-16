@@ -6,7 +6,7 @@ import {
   TouchableOpacity,
   Image,
 } from 'react-native';
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {
   widthPercentageToDP as wp,
   heightPercentageToDP as hp,
@@ -16,11 +16,29 @@ import CostomInputField from '../components/CostomInputField';
 import Contacts from 'react-native-contacts';
 import {PermissionsAndroid} from 'react-native';
 import Drawer from '../components/Drawer';
-
+import auth from '@react-native-firebase/auth';
+import firestore from '@react-native-firebase/firestore';
 const LoanAccounts = ({navigation}) => {
   const [contactsAvalible, setContactAvalible] = useState(false);
   const [contacts, setContacts] = useState([]);
   const [isVisibleModal, setIsVisibleModal] = useState(false);
+  const [user, setUser] = useState({}); // Initialize an empty user object
+
+  useEffect(() => {
+    const readUserProfile = async () => {
+      const userSnapshot = await firestore()
+        .collection('Profile')
+        .doc(auth().currentUser.uid)
+        .get();
+
+      if (userSnapshot.exists) {
+        // Check if the document exists
+        const userData = userSnapshot.data(); // Access data from the document
+        setUser(userData);
+      }
+    };
+    readUserProfile();
+  }, []);
 
   const getContacts = () => {
     PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.READ_CONTACTS, {
@@ -46,6 +64,11 @@ const LoanAccounts = ({navigation}) => {
         console.error('Permission error: ', error);
       });
   };
+
+  const openEditProfile = () => {
+    navigation.navigate('EditProfile');
+    setIsVisibleModal(false);
+  };
   return (
     <View style={styles.container}>
       <StatusBar backgroundColor={COLOR.purple} />
@@ -60,7 +83,12 @@ const LoanAccounts = ({navigation}) => {
             style={styles.icon}
           />
         </TouchableOpacity>
-        <Text style={styles.userName}>+923207409403</Text>
+        {user.name === null ? (
+          <Text style={styles.userName}>{user.number}</Text>
+        ) : (
+          <Text style={styles.userName}>{user.name}</Text>
+        )}
+
         <TouchableOpacity style={styles.iconContainer}>
           <Image
             source={require('../assets/icons/profile.png')}
@@ -115,10 +143,11 @@ const LoanAccounts = ({navigation}) => {
         firstOption={'Edit Profile'}
         secondOption={'About us'}
         onClickClose={() => setIsVisibleModal(false)}
-        onClickFirstOption={() => {}}
+        onClickFirstOption={openEditProfile}
         onClickSecondOption={() => {}}
         firstIcon={require('../assets/icons/profile-purple.png')}
         secondIcon={require('../assets/icons/info.png')}
+        navigation={navigation}
       />
     </View>
   );

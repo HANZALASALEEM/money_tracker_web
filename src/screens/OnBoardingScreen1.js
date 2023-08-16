@@ -13,6 +13,7 @@ import {
   heightPercentageToDP as hp,
   widthPercentageToDP as wp,
 } from 'react-native-responsive-screen';
+import COLOR from '../assets/colors/Color';
 const OnBoardingScreen1 = ({navigation}) => {
   return (
     <View style={styles.container}>
@@ -21,7 +22,7 @@ const OnBoardingScreen1 = ({navigation}) => {
       <View style={styles.skipContainer}>
         <TouchableOpacity
           onPress={() => {
-            navigation.navigate('OTPScreen');
+            navigation.navigate('SignUp');
           }}>
           <Text style={styles.skipContainerText}>Skip</Text>
         </TouchableOpacity>
@@ -147,7 +148,7 @@ const styles = StyleSheet.create({
     height: 10,
     width: 16,
     borderRadius: 4,
-    backgroundColor: '#7e1d6c',
+    backgroundColor: COLOR.purple,
   },
   nonSelectedDotsContainer: {
     height: 6,

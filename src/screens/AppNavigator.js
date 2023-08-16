@@ -12,6 +12,7 @@ import ContactList from './ContactList';
 import AddCostumer from './AddCostumer';
 import EditProfile from './EditProfile';
 import SignUp from './SignUp';
+import Login from './Login';
 
 const Stack = createStackNavigator();
 const AppNavigator = () => {
@@ -50,6 +51,11 @@ const AppNavigator = () => {
       <Stack.Screen
         name="SignUp"
         component={SignUp}
+        options={{headerShown: false}}
+      />
+      <Stack.Screen
+        name="Login"
+        component={Login}
         options={{headerShown: false}}
       />
       <Stack.Screen

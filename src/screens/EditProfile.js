@@ -16,10 +16,14 @@ import ModelView from '../components/ModelView';
 import firestore from '@react-native-firebase/firestore';
 import uuid from 'react-native-uuid';
 import storage from '@react-native-firebase/storage';
+import auth from '@react-native-firebase/auth';
+
 const EditProfile = ({navigation}) => {
   const [name, setName] = useState();
+  const [number, setNumber] = useState();
+
   const [isVisibleModal, setIsVisibleModal] = useState(false);
-  const [image, setImage] = useState();
+  const [image, setImage] = useState(null);
   const [fileName, setFileName] = useState();
 
   const handleImagePicker = () => {
@@ -44,7 +48,6 @@ const EditProfile = ({navigation}) => {
       setFileName(response.assets[0].fileName);
     });
     setIsVisibleModal(false);
-    uploadImage();
   };
 
   const openCamera = async () => {
@@ -66,17 +69,16 @@ const EditProfile = ({navigation}) => {
       setFileName(response.assets[0].fileName);
     });
     setIsVisibleModal(false);
-    uploadImage();
   };
 
   const userId = uuid.v4();
   const saveData = url => {
     firestore()
-      .collection('Contacts')
-      .doc(userId)
-      .set({
+      .collection('Profile')
+      .doc(auth().currentUser.uid)
+      .update({
         name: name,
-        image: url,
+        photo: url,
       })
       .then(() => {
         console.log('User added!');
@@ -101,9 +103,10 @@ const EditProfile = ({navigation}) => {
         onClickLeftIcon={() => {
           navigation.goBack();
         }}
+        title={'Edit Profile'}
       />
       <Text style={styles.instruction}>
-        Please upload Costumer Photo and Name
+        Please upload your Photo, Name and Mobile number
       </Text>
       <TouchableOpacity
         style={styles.imageContainer}
@@ -120,18 +123,27 @@ const EditProfile = ({navigation}) => {
           />
         )}
       </TouchableOpacity>
+
       <View style={styles.inputContainer}>
         <CostomInputField
           value={name}
-          placeholder={'Add Costumer Name'}
+          placeholder={'Name'}
           ChangeText={text => {
             setName(text);
           }}
           imgSource={require('../assets/icons/profile-user.png')}
         />
+        {/* <CostomInputField
+          value={number}
+          placeholder={'Mobile No'}
+          ChangeText={text => {
+            setNumber(text);
+          }}
+          imgSource={require('../assets/icons/call.png')}
+        /> */}
       </View>
       <View style={styles.buttonContainer}>
-        <CostomButton title={'Add Costumer'} onClick={saveData} />
+        <CostomButton title={'Save'} onClick={uploadImage} />
       </View>
       <ModelView
         isVisibleModal={isVisibleModal}

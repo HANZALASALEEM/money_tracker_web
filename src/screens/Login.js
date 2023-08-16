@@ -1,4 +1,4 @@
-import {Alert, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
+import {Alert, StyleSheet, Text, View} from 'react-native';
 import React, {useState} from 'react';
 import COLOR from '../assets/colors/Color';
 import {
@@ -8,39 +8,15 @@ import {
 import CostomInputField from '../components/CostomInputField';
 import CostomButton from '../components/CostomButton';
 import auth from '@react-native-firebase/auth';
-import firestore from '@react-native-firebase/firestore';
-import uuid from 'react-native-uuid';
-const SignUp = ({navigation}) => {
+const Login = ({navigation}) => {
   const [email, setEmail] = useState();
-  const [number, setNumber] = useState();
   const [password, setPassword] = useState();
 
-  const userId = uuid.v4();
-  const storeProfile = () => {
-    firestore()
-      .collection('Profile')
-      .doc(auth().currentUser.uid) // Automatically generates a unique document ID
-      .set({
-        email: email,
-        number: number,
-        password: password,
-        photo: null,
-        name: null,
-      })
-      .then(() => {
-        console.log('User profile added!');
-      })
-      .catch(error => {
-        console.error(error);
-      });
-  };
-
-  const signUp = () => {
+  const login = () => {
     auth()
-      .createUserWithEmailAndPassword(email, password)
+      .signInWithEmailAndPassword(email, password)
       .then(() => {
         console.log('User account created & signed in!');
-        storeProfile();
         navigation.replace('BottomNavigator');
       })
       .catch(error => {
@@ -65,12 +41,12 @@ const SignUp = ({navigation}) => {
     <View style={styles.container}>
       {/* 7% screen height with Heading */}
       <View style={styles.headingContainer}>
-        <Text style={styles.heading}>SignUp</Text>
+        <Text style={styles.heading}>Login</Text>
       </View>
       {/* 10% screen height with Heading */}
       <View style={styles.descriptionContainer}>
         <Text style={styles.description}>
-          Please enter your Mobile No,Email and Password
+          Please enter your Email and Password
         </Text>
       </View>
       <CostomInputField
@@ -82,14 +58,6 @@ const SignUp = ({navigation}) => {
         imgSource={require('../assets/icons/email.png')}
       />
       <CostomInputField
-        value={number}
-        placeholder={'Enter Mobile No'}
-        ChangeText={text => {
-          setNumber(text);
-        }}
-        imgSource={require('../assets/icons/call.png')}
-      />
-      <CostomInputField
         value={password}
         placeholder={'Enter Password'}
         ChangeText={text => {
@@ -99,20 +67,20 @@ const SignUp = ({navigation}) => {
       />
       {/* 10% screen height with Heading */}
       <View style={styles.buttonContainer}>
-        <CostomButton title={'Sign Up'} onClick={signUp} />
+        <CostomButton title={'Login'} onClick={login} />
       </View>
       {/* 10% screen height with Heading */}
       <View style={styles.loginContainer}>
-        <TouchableOpacity onPress={() => navigation.replace('Login')}>
-          <Text style={{color: COLOR.purple}}> Log In ?</Text>
-        </TouchableOpacity>
-        <Text style={styles.description}>If you already have an account</Text>
+        <Text style={styles.description}>
+          <Text style={{color: COLOR.purple}}> Log In ?</Text> If you already
+          have an account
+        </Text>
       </View>
     </View>
   );
 };
 
-export default SignUp;
+export default Login;
 
 const styles = StyleSheet.create({
   container: {
@@ -150,7 +118,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     marginTop: -30,
-    flexDirection: 'row',
   },
   password: {},
 });

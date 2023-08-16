@@ -18,6 +18,7 @@ import {
 import CostomButton from '../components/CostomButton';
 import firestore from '@react-native-firebase/firestore';
 import uuid from 'react-native-uuid';
+import auth from '@react-native-firebase/auth';
 const ContactList = ({route, navigation}) => {
   const {contacts, onSelectContact} = route.params;
   const [search, setSearch] = useState();
@@ -34,14 +35,17 @@ const ContactList = ({route, navigation}) => {
   const userId = uuid.v4();
   const handleContactsButton = async item => {
     firestore()
-      .collection('Users')
-      .doc(userId)
+      .collection('ContactList')
+      .doc(auth().currentUser.uid)
+      .collection('Contacts')
+      .doc()
       .set({
         name: item.displayName,
         number: item.phoneNumbers[0].number,
       })
       .then(() => {
         console.log('User added!');
+        console.log(searchedList);
       });
   };
   return (
