@@ -8,12 +8,15 @@ import OnBoardingScreen3 from './OnBoardingScreen3';
 import OTPScreen from './OTPScreen';
 import VerificationScreen from './VerificationScreen';
 import BottomNavigator from './BottomNavigator';
-import ContactList from './ContactList';
-import AddCostumer from './AddCostumer';
+import ContactList from './forLoanAccountsScreens/ContactList';
+import AddCostumer from './forLoanAccountsScreens/AddCostumer';
 import EditProfile from './EditProfile';
 import SignUp from './SignUp';
 import Login from './Login';
-import AccountDetails from './AccountDetails';
+import AccountDetails from './forLoanAccountsScreens/AccountDetails';
+import NewEntryGive from './forLoanAccountsScreens/NewEntryGive';
+import NewEntryTake from './forLoanAccountsScreens/NewEntryTake';
+import ItemDetailsLoanAccount from './forLoanAccountsScreens/ItemDetailsLoanAccount';
 
 const Stack = createStackNavigator();
 const AppNavigator = () => {
@@ -77,6 +80,21 @@ const AppNavigator = () => {
       <Stack.Screen
         name="AccountDetails"
         component={AccountDetails}
+        options={{headerShown: false}}
+      />
+      <Stack.Screen
+        name="NewEntryGive"
+        component={NewEntryGive}
+        options={{headerShown: false}}
+      />
+      <Stack.Screen
+        name="NewEntryTake"
+        component={NewEntryTake}
+        options={{headerShown: false}}
+      />
+      <Stack.Screen
+        name="ItemDetailsLoanAccount"
+        component={ItemDetailsLoanAccount}
         options={{headerShown: false}}
       />
       <Stack.Screen

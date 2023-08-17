@@ -7,12 +7,12 @@ import {
   TouchableOpacity,
 } from 'react-native';
 import React, {useState} from 'react';
-import COLOR from '../assets/colors/Color';
-import Header from '../components/Header';
-import CostomInputField from '../components/CostomInputField';
-import CostomButton from '../components/CostomButton';
+import COLOR from '../../assets/colors/Color';
+import Header from '../../components/Header';
+import CostomInputField from '../../components/CostomInputField';
+import CostomButton from '../../components/CostomButton';
 import {launchCamera, launchImageLibrary} from 'react-native-image-picker';
-import ModelView from '../components/ModelView';
+import ModelView from '../../components/ModelView';
 import firestore from '@react-native-firebase/firestore';
 import uuid from 'react-native-uuid';
 import storage from '@react-native-firebase/storage';
@@ -100,7 +100,7 @@ const AddCostumer = ({navigation}) => {
     <View style={styles.container}>
       <StatusBar backgroundColor={COLOR.purple} />
       <Header
-        leftIcon={require('../assets/icons/left-arrow.png')}
+        leftIcon={require('../../assets/icons/left-arrow.png')}
         onClickLeftIcon={() => {
           navigation.goBack();
         }}
@@ -116,7 +116,7 @@ const AddCostumer = ({navigation}) => {
           />
         ) : (
           <Image
-            source={require('../assets/icons/image.png')}
+            source={require('../../assets/icons/image.png')}
             style={styles.icon}
           />
         )}
@@ -128,7 +128,7 @@ const AddCostumer = ({navigation}) => {
           ChangeText={text => {
             setName(text);
           }}
-          imgSource={require('../assets/icons/profile-user.png')}
+          imgSource={require('../../assets/icons/profile-user.png')}
         />
       </View>
       <View style={styles.buttonContainer}>
@@ -141,8 +141,8 @@ const AddCostumer = ({navigation}) => {
         onClickClose={() => setIsVisibleModal(false)}
         onClickFirstOption={openCamera}
         onClickSecondOption={openGallery}
-        firstIcon={require('../assets/icons/camera.png')}
-        secondIcon={require('../assets/icons/gallery.png')}
+        firstIcon={require('../../assets/icons/camera.png')}
+        secondIcon={require('../../assets/icons/gallery.png')}
       /> */}
     </View>
   );

@@ -171,9 +171,12 @@ const LoanAccounts = ({navigation}) => {
             renderItem={({item}) => (
               <TouchableOpacity
                 style={styles.flatListEachContainer}
-                onPress={() =>
-                  navigation.navigate('AccountDetails', {name: item.name})
-                }>
+                onPress={() => {
+                  navigation.navigate('AccountDetails', {
+                    name: item.name,
+                    id: item.id,
+                  });
+                }}>
                 <Image
                   source={require('../assets/icons/profile-user.png')}
                   style={styles.flatListIcon}

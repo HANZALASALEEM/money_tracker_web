@@ -8,14 +8,14 @@ import {
   StatusBar,
 } from 'react-native';
 import React, {useEffect, useState} from 'react';
-import COLOR from '../assets/colors/Color';
-import Header from '../components/Header';
-import CostomInputField from '../components/CostomInputField';
+import COLOR from '../../assets/colors/Color';
+import Header from '../../components/Header';
+import CostomInputField from '../../components/CostomInputField';
 import {
   widthPercentageToDP as wp,
   heightPercentageToDP as hp,
 } from 'react-native-responsive-screen';
-import CostomButton from '../components/CostomButton';
+import CostomButton from '../../components/CostomButton';
 import firestore from '@react-native-firebase/firestore';
 import uuid from 'react-native-uuid';
 import auth from '@react-native-firebase/auth';
@@ -38,11 +38,11 @@ const ContactList = ({route, navigation}) => {
       .collection('Users')
       .doc(auth().currentUser.uid)
       .collection('Contacts')
-      .doc(userId)
+      .doc(item.recordID)
       .set({
         name: item.displayName,
         number: item.phoneNumbers[0].number,
-        id: userId,
+        id: item.recordID,
       })
       .then(() => {
         console.log('User added!');
@@ -52,7 +52,7 @@ const ContactList = ({route, navigation}) => {
     <View style={styles.container}>
       <StatusBar backgroundColor={COLOR.purple} />
       <Header
-        leftIcon={require('../assets/icons/left-arrow.png')}
+        leftIcon={require('../../assets/icons/left-arrow.png')}
         onClickLeftIcon={() => {
           navigation.goBack();
         }}
@@ -61,7 +61,7 @@ const ContactList = ({route, navigation}) => {
         <CostomInputField
           value={search}
           placeholder={'Search Costumer'}
-          imgSource={require('../assets/icons/find.png')}
+          imgSource={require('../../assets/icons/find.png')}
           ChangeText={text => {
             setSearch(text);
             filterData(text);
@@ -78,7 +78,11 @@ const ContactList = ({route, navigation}) => {
           return (
             <TouchableOpacity
               style={styles.eachContactContainer}
-              onPress={() => handleContactsButton(item)}>
+              onPress={() => {
+                handleContactsButton(item);
+                console.log(item.recordID);
+                console.log(searchedList);
+              }}>
               <View style={styles.contactInfoContainer}>
                 {!item.thumbnailPath == '' ? (
                   <Image
@@ -88,7 +92,7 @@ const ContactList = ({route, navigation}) => {
                   />
                 ) : (
                   <Image
-                    source={require('../assets/icons/profile-user.png')}
+                    source={require('../../assets/icons/profile-user.png')}
                     style={styles.icon}
                     // source={{uri: item.thumbnailPath}}
                   />
