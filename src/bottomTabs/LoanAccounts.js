@@ -58,7 +58,7 @@ const LoanAccounts = ({navigation}) => {
           setContactList(users);
           setContactAvalible(true);
           console.log(contactList);
-          if (contactList != []) {
+          if (contactList.length !== 0) {
             setContactAvalible(true);
           }
         });
@@ -81,7 +81,6 @@ const LoanAccounts = ({navigation}) => {
             //   a.displayName.localeCompare(b.displayName),
             // );
             navigation.navigate('ContactList', {contacts});
-            //console.log(sortedContacts);
           })
           .catch(e => {
             console.log(e);

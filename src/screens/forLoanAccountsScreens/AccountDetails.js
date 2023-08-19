@@ -5,6 +5,7 @@ import {
   StatusBar,
   TouchableOpacity,
   FlatList,
+  Linking,
 } from 'react-native';
 import React, {useState, useEffect} from 'react';
 import Header from '../../components/Header';
@@ -15,9 +16,16 @@ import {
   widthPercentageToDP as wp,
   heightPercentageToDP as hp,
 } from 'react-native-responsive-screen';
+import SmsAndroid from 'react-native-sms';
+import {SMS} from 'react-native-sms';
+import ModelView from '../../components/ModelView';
+
 const AccountDetails = ({route, navigation}) => {
   const [isTransactionAvalible, setIsTransactionAvalible] = useState(false);
-  const [transactionList, setTransactionList] = useState([]); // Initial empty array of users
+  const [transactionList, setTransactionList] = useState([]);
+  const [totalTakenAmount, setTotalTakenAmount] = useState(0);
+  const [totalGivenAmount, setTotalGivenAmount] = useState(0); // Initial empty array of users
+  const [isVisibleModal, setIsVisibleModal] = useState(false);
   const costumerID = route.params.id;
   useEffect(() => {
     const readTransactionList = () => {
@@ -29,16 +37,34 @@ const AccountDetails = ({route, navigation}) => {
         .collection('Transaction')
         .onSnapshot(querySnapshot => {
           const users = [];
-
+          let totalTaken = 0;
+          let totalGiven = 0;
           querySnapshot.forEach(documentSnapshot => {
+            // To Calculate the sum of all Taken Amounts
+            const taken = documentSnapshot.data().takenAmount;
+            if (documentSnapshot.data().takenAmount === null) {
+              totalTaken += 0;
+            } else {
+              totalTaken += parseFloat(taken);
+            }
+
+            // To Calculate the sum of all Given Amounts
+            const given = documentSnapshot.data().givenAmount;
+            if (documentSnapshot.data().givenAmount === null) {
+              totalGiven += 0;
+            } else {
+              totalGiven += parseFloat(given);
+            }
+
             users.push({
               ...documentSnapshot.data(),
               key: documentSnapshot.id,
             });
           });
-
+          setTotalTakenAmount(totalTaken);
+          setTotalGivenAmount(totalGiven);
           setTransactionList(users);
-          setIsTransactionAvalible(true);
+
           console.log(transactionList);
           // if (contactList != []) {
           //   setContactAvalible(true);
@@ -47,7 +73,40 @@ const AccountDetails = ({route, navigation}) => {
       return () => subscriber();
     };
     readTransactionList();
+    // if (transactionList.length != 0) {
+    //   setIsTransactionAvalible(true);
+    // }
   }, []);
+
+  const sendSMS = () => {
+    SMS.send(
+      {
+        body: 'Hello from my React Native app!',
+        recipients: ['+923207409403'], // Replace with the recipient's phone number
+        successTypes: ['sent', 'queued'],
+      },
+      (completed, cancelled, error) => {
+        if (completed) {
+          console.log('SMS sent successfully');
+        } else if (cancelled) {
+          console.log('SMS sending cancelled');
+        } else if (error) {
+          console.error('Error sending SMS:', error);
+        }
+      },
+    );
+  };
+
+  const sendWhatsAppMessage = (phoneNumber, message) => {
+    const phoneNumberWithoutSpaces = phoneNumber.replace(/\s/g, ''); // Remove spaces
+    const whatsappUrl = `https://wa.me/${phoneNumberWithoutSpaces}?text=${encodeURIComponent(
+      message,
+    )}`;
+
+    Linking.openURL(whatsappUrl).catch(err =>
+      console.error('Error opening WhatsApp:', err),
+    );
+  };
 
   return (
     <View style={styles.container}>
@@ -62,31 +121,42 @@ const AccountDetails = ({route, navigation}) => {
       <View style={styles.accountSummary}>
         <View style={styles.accountDetailContainer}>
           <Text style={styles.accountDetailTitle}>To Take</Text>
-          <Text style={styles.accountDetailAmount}>Rs 500</Text>
+          <Text style={styles.accountDetailAmount}>Rs {totalTakenAmount}</Text>
         </View>
         <View style={styles.accountDetailContainer}>
           <Text style={styles.accountDetailTitle}>To Give</Text>
-          <Text style={styles.accountDetailAmount}>Rs 500</Text>
+          <Text style={styles.accountDetailAmount}>Rs {totalGivenAmount}</Text>
         </View>
       </View>
-      {isTransactionAvalible ? (
+      {transactionList.length !== 0 ? (
         <View>
           <View style={styles.reminderContainer}>
-            <View style={styles.reminderEachContainer}>
+            <TouchableOpacity
+              style={styles.reminderEachContainer}
+              onPress={sendSMS}>
               <Text style={styles.reminderEachContainerTitle}>
                 Remind via SMS
               </Text>
-            </View>
-            <View style={styles.reminderEachContainer}>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.reminderEachContainer}
+              onPress={sendWhatsAppMessage(
+                '+923076315596',
+                'Hello from my React Native app!',
+              )}>
               <Text style={styles.reminderEachContainerTitle}>
                 Remind via WhatsApp
               </Text>
-            </View>
-            <View style={styles.reminderEachContainer}>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.reminderEachContainer}
+              onPress={() => {
+                setIsVisibleModal(true);
+              }}>
               <Text style={styles.reminderEachContainerTitle}>
                 Generate Report
               </Text>
-            </View>
+            </TouchableOpacity>
           </View>
           <View style={styles.itemDetailsContainer}>
             <Text style={styles.itemDetailsContainerDate}>Date</Text>
@@ -165,6 +235,16 @@ const AccountDetails = ({route, navigation}) => {
         }>
         <Text style={styles.takeButtonText}>Take</Text>
       </TouchableOpacity>
+      <ModelView
+        isVisibleModal={isVisibleModal}
+        firstOption={'Generate as PDF'}
+        secondOption={'Generate as EXCEL'}
+        onClickClose={() => setIsVisibleModal(false)}
+        onClickFirstOption={() => {}}
+        onClickSecondOption={() => {}}
+        firstIcon={require('../../assets/icons/pdf.png')}
+        secondIcon={require('../../assets/icons/excel.png')}
+      />
     </View>
   );
 };
