@@ -22,7 +22,7 @@ const OnBoardingScreen1 = ({navigation}) => {
       <View style={styles.skipContainer}>
         <TouchableOpacity
           onPress={() => {
-            navigation.navigate('SignUp');
+            navigation.replace('SignUp');
           }}>
           <Text style={styles.skipContainerText}>Skip</Text>
         </TouchableOpacity>
@@ -65,7 +65,7 @@ const OnBoardingScreen1 = ({navigation}) => {
           <TouchableOpacity
             style={styles.forwordButton}
             onPress={() => {
-              navigation.navigate('OnBoardingScreen2');
+              navigation.replace('OnBoardingScreen2');
             }}>
             <Image
               source={require('../assets/icons/right-arrow.png')}

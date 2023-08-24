@@ -67,7 +67,7 @@ const NewEntryGive = ({navigation, route}) => {
   const saveData = url => {
     // const currentDate = new Date();
     // const formattedDate = currentDate.toISOString();
-    const formattedDate = moment().format('YYYY-MM-DD HH:mm:ss');
+    const formattedDate = moment().format('YYYY-MM-DD');
     firestore()
       .collection('Users')
       .doc(auth().currentUser.uid)

@@ -24,7 +24,10 @@ const LoanAccounts = ({navigation}) => {
   const [contacts, setContacts] = useState([]);
   const [isVisibleModal, setIsVisibleModal] = useState(false);
   const [user, setUser] = useState({}); // Initialize an empty user object
-  const [contactList, setContactList] = useState([]); // Initial empty array of users
+  const [contactList, setContactList] = useState([]);
+  const [search, setSearch] = useState();
+  const [searchedList, setSearchedList] = useState(contactList);
+
   useEffect(() => {
     const readUserProfile = async () => {
       const userSnapshot = await firestore()
@@ -39,7 +42,6 @@ const LoanAccounts = ({navigation}) => {
       }
     };
     readUserProfile();
-
     const readContactList = () => {
       const subscriber = firestore()
         .collection('Users')
@@ -58,14 +60,79 @@ const LoanAccounts = ({navigation}) => {
           setContactList(users);
           setContactAvalible(true);
           console.log(contactList);
-          if (contactList.length !== 0) {
-            setContactAvalible(true);
-          }
+          // if (contactList.length !== 0) {
+          //   setContactAvalible(true);
+          // }
         });
       return () => subscriber();
     };
+
+    //   const subscriber = firestore()
+    //     .collection('Users')
+    //     .doc(auth().currentUser.uid)
+    //     .collection('Contacts')
+    //     .onSnapshot(querySnapshot => {
+    //       const users = [];
+
+    //       querySnapshot.forEach(documentSnapshot => {
+    //         users.push({
+    //           ...documentSnapshot.data(),
+    //           key: documentSnapshot.id,
+    //         });
+    //       });
+
+    //       setContactList(users);
+    //       setContactAvalible(true);
+    //       console.log(contactList);
+    //       if (contactList.length !== 0) {
+    //         setContactAvalible(true);
+    //       }
+    //     });
+    //   return () => subscriber();
+    // };
+    // const readContactList = () => {
+    //   const subscriber = firestore()
+    //     .collection('Users')
+    //     .doc(auth().currentUser.uid)
+    //     .collection('Contacts')
+    //     .onSnapshot(async querySnapshot => {
+    //       const users = [];
+
+    //       for (const documentSnapshot of querySnapshot.docs) {
+    //         const contactData = documentSnapshot.data();
+    //         const transactionsSnapshot = await documentSnapshot.ref
+    //           .collection('Transactions')
+    //           .get();
+    //         let takenAmount = 0;
+
+    //         transactionsSnapshot.forEach(transactionDoc => {
+    //           const transactionData = transactionDoc.data();
+    //           takenAmount += transactionData.takenAmount;
+    //         });
+
+    //         users.push({
+    //           ...contactData,
+    //           key: documentSnapshot.id,
+    //           takenAmount: takenAmount,
+    //         });
+    //       }
+
+    //       setContactList(users);
+    //       setContactAvalible(true);
+    //     });
+
+    //   return () => subscriber();
+    // };
     readContactList();
   }, []);
+
+  const filterData = text => {
+    let newData = contactList.filter(item => {
+      // return item.displayNam.toLowerCase().match(text.toLowerCase());
+      return item.name.toLowerCase().includes(text.toLowerCase());
+    });
+    setContactList(newData);
+  };
 
   const getContacts = () => {
     PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.READ_CONTACTS, {
@@ -115,7 +182,9 @@ const LoanAccounts = ({navigation}) => {
           <Text style={styles.userName}>{user.name}</Text>
         )}
 
-        <TouchableOpacity style={styles.iconContainer}>
+        <TouchableOpacity
+          style={styles.iconContainer}
+          onPress={() => navigation.navigate('Profile')}>
           <Image
             source={require('../assets/icons/profile.png')}
             style={styles.icon}
@@ -124,11 +193,16 @@ const LoanAccounts = ({navigation}) => {
       </View>
       <View style={styles.banner}>
         <CostomInputField
+          value={search}
           placeholder={'Search Costumer'}
           imgSource={require('../assets/icons/find.png')}
+          onChangeText={text => {
+            setSearch(text);
+            filterData(text);
+          }}
         />
       </View>
-      {!contactsAvalible ? (
+      {contactList.length === 0 ? (
         <View style={styles.wellcomeNote}>
           <Text style={styles.wellcomeNoteText}>
             To enhance your experience with the Loan Accounts Page, we invite
@@ -158,7 +232,9 @@ const LoanAccounts = ({navigation}) => {
           <View style={styles.accountSummary}>
             <View style={styles.accountDetailContainer}>
               <Text style={styles.accountDetailTitle}>Leny hn</Text>
-              <Text style={styles.accountDetailAmount}>Rs 500</Text>
+              <Text style={styles.accountDetailAmount}>
+                Rs {contactList.takenAmount}
+              </Text>
             </View>
             <View style={styles.accountDetailContainer}>
               <Text style={styles.accountDetailTitle}>Deny hn</Text>

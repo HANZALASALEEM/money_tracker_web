@@ -6,6 +6,9 @@ import {
   TouchableOpacity,
   FlatList,
   Linking,
+  Alert,
+  Pressable,
+  PermissionsAndroid,
 } from 'react-native';
 import React, {useState, useEffect} from 'react';
 import Header from '../../components/Header';
@@ -16,16 +19,20 @@ import {
   widthPercentageToDP as wp,
   heightPercentageToDP as hp,
 } from 'react-native-responsive-screen';
-import SmsAndroid from 'react-native-sms';
-import {SMS} from 'react-native-sms';
+import SendSMS from 'react-native-sms';
 import ModelView from '../../components/ModelView';
-
+import RNHTMLtoPDF from 'react-native-html-to-pdf';
+import moment from 'moment';
+var RNFS = require('react-native-fs');
+import XLSX from 'xlsx';
 const AccountDetails = ({route, navigation}) => {
   const [isTransactionAvalible, setIsTransactionAvalible] = useState(false);
   const [transactionList, setTransactionList] = useState([]);
   const [totalTakenAmount, setTotalTakenAmount] = useState(0);
   const [totalGivenAmount, setTotalGivenAmount] = useState(0); // Initial empty array of users
   const [isVisibleModal, setIsVisibleModal] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [count, setCount] = useState(1);
   const costumerID = route.params.id;
   useEffect(() => {
     const readTransactionList = () => {
@@ -35,6 +42,7 @@ const AccountDetails = ({route, navigation}) => {
         .collection('Transactions')
         .doc(route.params.id)
         .collection('Transaction')
+        .orderBy('date', 'desc')
         .onSnapshot(querySnapshot => {
           const users = [];
           let totalTaken = 0;
@@ -73,28 +81,33 @@ const AccountDetails = ({route, navigation}) => {
       return () => subscriber();
     };
     readTransactionList();
-    // if (transactionList.length != 0) {
-    //   setIsTransactionAvalible(true);
-    // }
   }, []);
 
   const sendSMS = () => {
-    SMS.send(
+    // if (mobileNumber.length != 10) {
+    //   alert('Please insert correct contact number');
+    // } else {
+    SendSMS.send(
       {
-        body: 'Hello from my React Native app!',
-        recipients: ['+923207409403'], // Replace with the recipient's phone number
+        // Message body
+        body: 'HANZALA',
+        // Recipients Number
+        recipients: ['923207409403'],
+        // An array of types
+        // "completed" response when using android
         successTypes: ['sent', 'queued'],
       },
       (completed, cancelled, error) => {
         if (completed) {
-          console.log('SMS sent successfully');
+          console.log('SMS Sent Completed');
         } else if (cancelled) {
-          console.log('SMS sending cancelled');
+          console.log('SMS Sent Cancelled');
         } else if (error) {
-          console.error('Error sending SMS:', error);
+          console.log('Some error occured');
         }
       },
     );
+    // }
   };
 
   const sendWhatsAppMessage = (phoneNumber, message) => {
@@ -106,6 +119,133 @@ const AccountDetails = ({route, navigation}) => {
     Linking.openURL(whatsappUrl).catch(err =>
       console.error('Error opening WhatsApp:', err),
     );
+  };
+
+  // Generate PDF
+  const formattedDate = moment().format('YYYY-MM-DD');
+  const generatePDFhandler = async () => {
+    setIsLoading(true);
+    try {
+      const html = `
+        <html>
+          <head>
+            <style>
+              body {
+                font-family: 'Helvetica';
+                font-size: 12px;
+              }
+              header, footer {
+                height: 50px;
+                background-color: #fff;
+                color: #000;
+                display: flex;
+                justify-content: center;
+                padding: 0 20px;
+              }
+              table {
+                width: 100%;
+                border-collapse: collapse;
+              }
+              th, td {
+                border: 1px solid #000;
+                padding: 5px;
+              }
+              th {
+                background-color: #ccc;
+              }
+            </style>
+          </head>
+          <body>
+            <header>
+              <h1>${route.params.name}</h1>
+            </header>
+            <h1>Account Detail</h1>
+            <table>
+              <tr>
+                <th>Costomer Name</th>
+                <td>${route.params.name}</td> 
+              </tr>
+              <tr>
+                <th>Download Date</th>
+                <td>${formattedDate}</td>
+              </tr>
+              <tr>
+                <th>Total Taken Amount</th>
+                <td>Rs ${totalTakenAmount}</td>
+              </tr>
+              <tr>
+                <th>Total Given Amount</th>
+                <td>Rs ${totalGivenAmount}</td>
+              </tr>
+            </table>
+            <h1>Transaction List</h1>
+            <table>
+              <tr>
+                <th>Date</th>
+                <th>Item Name</th>
+                <th>Taken Amount</th>
+                <th>Given Amount</th>
+              </tr>
+              ${transactionList
+                .map(
+                  line => `
+                <tr>
+                  <td>${line.date}</td>
+                  <td>${line.itemName}</td>
+                  <td>${line.takenAmount}</td>
+                  <td>${line.givenAmount}</td>
+                </tr>
+              `,
+                )
+                .join('')}
+            </table>
+            <footer>
+              <p>Thank you for your business!</p>
+            </footer>
+          </body>
+        </html>
+      `;
+      const options = {
+        html,
+        fileName: `invoice_${count}`,
+        directory: 'Invoices',
+      };
+      const file = await RNHTMLtoPDF.convert(options);
+      Alert.alert('Success', `PDF saved to ${file.filePath}`);
+      setCount(count + 1);
+      setIsLoading(false);
+    } catch (error) {
+      Alert.alert('Error', error.message);
+    }
+  };
+
+  const generateEXCELhandler = async () => {
+    const wb = XLSX.utils.book_new();
+    const ws = XLSX.utils.json_to_sheet(transactionList);
+    XLSX.utils.book_append_sheet(wb, ws, 'Users');
+    const wbout = XLSX.write(wb, {type: 'binary', bookType: 'xlsx'});
+
+    try {
+      const granted = await PermissionsAndroid.request(
+        PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE,
+        {
+          title: 'Storage permission needed',
+          buttonNeutral: 'Ask Me Later',
+          buttonNegative: 'Cancel',
+          buttonPositive: 'OK',
+        },
+      );
+
+      if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+        const filePath = RNFS.ExternalDirectoryPath + '/my_exported_file.xlsx';
+        await RNFS.writeFile(filePath, wbout, 'ascii');
+        console.log('File saved at:', filePath);
+      } else {
+        console.log('Permission denied');
+      }
+    } catch (error) {
+      console.log('Error while requesting permission or writing file:', error);
+    }
   };
 
   return (
@@ -141,7 +281,7 @@ const AccountDetails = ({route, navigation}) => {
             <TouchableOpacity
               style={styles.reminderEachContainer}
               onPress={sendWhatsAppMessage(
-                '+923076315596',
+                '+923207409403',
                 'Hello from my React Native app!',
               )}>
               <Text style={styles.reminderEachContainerTitle}>
@@ -170,7 +310,10 @@ const AccountDetails = ({route, navigation}) => {
               <TouchableOpacity
                 style={styles.flatListEachContainer}
                 onPress={() =>
-                  navigation.navigate('ItemDetailsLoanAccount', {data: item})
+                  navigation.navigate('ItemDetailsLoanAccount', {
+                    data: item,
+                    id: route.params.id,
+                  })
                 }>
                 <Text style={styles.itemDetailsContainerDate}>{item.date}</Text>
                 <Text style={styles.itemDetailsContainerItemName}>
@@ -240,8 +383,8 @@ const AccountDetails = ({route, navigation}) => {
         firstOption={'Generate as PDF'}
         secondOption={'Generate as EXCEL'}
         onClickClose={() => setIsVisibleModal(false)}
-        onClickFirstOption={() => {}}
-        onClickSecondOption={() => {}}
+        onClickFirstOption={generatePDFhandler}
+        onClickSecondOption={generateEXCELhandler}
         firstIcon={require('../../assets/icons/pdf.png')}
         secondIcon={require('../../assets/icons/excel.png')}
       />

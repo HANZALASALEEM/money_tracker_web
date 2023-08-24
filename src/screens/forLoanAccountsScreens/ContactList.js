@@ -19,6 +19,8 @@ import CostomButton from '../../components/CostomButton';
 import firestore from '@react-native-firebase/firestore';
 import uuid from 'react-native-uuid';
 import auth from '@react-native-firebase/auth';
+import ReactNativeLocalize, {getCountry} from 'react-native-localize';
+
 const ContactList = ({route, navigation}) => {
   const {contacts, onSelectContact} = route.params;
   const [search, setSearch] = useState();
@@ -32,8 +34,33 @@ const ContactList = ({route, navigation}) => {
     setSearchedList(newData);
   };
 
-  const userId = uuid.v4();
+  // const handleContactsButton = async item => {
+  //   firestore()
+  //     .collection('Users')
+  //     .doc(auth().currentUser.uid)
+  //     .collection('Contacts')
+  //     .doc(item.recordID)
+  //     .set({
+  //       name: item.displayName,
+  //       number: item.phoneNumbers[0].number,
+  //       id: item.recordID,
+  //     })
+  //     .then(() => {
+  //       console.log('User added!');
+  //     });
+  // };
   const handleContactsButton = async item => {
+    // const userLocaleCountryCode = getCountry();
+
+    // const phoneNumber = item.phoneNumbers[0].number;
+    // let formattedPhoneNumber = phoneNumber;
+
+    // // Check if the phone number starts with '0'
+    // if (phoneNumber.startsWith('0')) {
+    //   // Remove the leading '0' and add the country code
+    //   formattedPhoneNumber = `${userLocaleCountryCode}${phoneNumber.substr(1)}`;
+    // }
+
     firestore()
       .collection('Users')
       .doc(auth().currentUser.uid)

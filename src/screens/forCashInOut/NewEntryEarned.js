@@ -11,7 +11,7 @@ import uuid from 'react-native-uuid';
 import storage from '@react-native-firebase/storage';
 import auth from '@react-native-firebase/auth';
 import moment from 'moment';
-const NewEntryTake = ({navigation, route}) => {
+const NewEntryEarned = ({navigation, route}) => {
   const [amount, setAmount] = useState();
   const [itemName, setItemName] = useState();
   const [isVisibleModal, setIsVisibleModal] = useState(false);
@@ -63,25 +63,23 @@ const NewEntryTake = ({navigation, route}) => {
     setIsVisibleModal(false);
   };
 
-  const userId = uuid.v4();
   const saveData = url => {
     const formattedDate = moment().format('YYYY-MM-DD');
     firestore()
       .collection('Users')
       .doc(auth().currentUser.uid)
-      .collection('Transactions')
-      .doc(route.params.id)
-      .collection('Transaction')
+      .collection('CashInOut')
       .doc()
       .set({
-        givenAmount: null,
+        earnedAmount: amount,
         itemName: itemName,
         photo: url,
-        takenAmount: amount,
+        spendAmount: null,
         date: formattedDate,
       })
       .then(() => {
         console.log('User added!');
+        navigation.goBack();
       });
   };
 
@@ -103,7 +101,7 @@ const NewEntryTake = ({navigation, route}) => {
         onClickLeftIcon={() => {
           navigation.goBack();
         }}
-        title={'Give'}
+        title={'Earned'}
       />
       <View style={styles.amountInputContainer}>
         <CostomInputField
@@ -149,7 +147,7 @@ const NewEntryTake = ({navigation, route}) => {
   );
 };
 
-export default NewEntryTake;
+export default NewEntryEarned;
 
 const styles = StyleSheet.create({
   container: {

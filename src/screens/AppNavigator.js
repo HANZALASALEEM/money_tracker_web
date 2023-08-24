@@ -17,6 +17,11 @@ import AccountDetails from './forLoanAccountsScreens/AccountDetails';
 import NewEntryGive from './forLoanAccountsScreens/NewEntryGive';
 import NewEntryTake from './forLoanAccountsScreens/NewEntryTake';
 import ItemDetailsLoanAccount from './forLoanAccountsScreens/ItemDetailsLoanAccount';
+import NewEntryEarned from './forCashInOut/NewEntryEarned';
+import NewEntrySpend from './forCashInOut/NewEntrySpend';
+import ItemDetailsCashInOut from './forCashInOut/ItemDetailsCashInOut';
+import Profile from './Profile';
+import ForgetPassword from './ForgetPassword';
 
 const Stack = createStackNavigator();
 const AppNavigator = () => {
@@ -63,6 +68,11 @@ const AppNavigator = () => {
         options={{headerShown: false}}
       />
       <Stack.Screen
+        name="ForgetPassword"
+        component={ForgetPassword}
+        options={{headerShown: false}}
+      />
+      <Stack.Screen
         name="ContactList"
         component={ContactList}
         options={{headerShown: false}}
@@ -95,6 +105,26 @@ const AppNavigator = () => {
       <Stack.Screen
         name="ItemDetailsLoanAccount"
         component={ItemDetailsLoanAccount}
+        options={{headerShown: false}}
+      />
+      <Stack.Screen
+        name="NewEntryEarned"
+        component={NewEntryEarned}
+        options={{headerShown: false}}
+      />
+      <Stack.Screen
+        name="NewEntrySpend"
+        component={NewEntrySpend}
+        options={{headerShown: false}}
+      />
+      <Stack.Screen
+        name="ItemDetailsCashInOut"
+        component={ItemDetailsCashInOut}
+        options={{headerShown: false}}
+      />
+      <Stack.Screen
+        name="Profile"
+        component={Profile}
         options={{headerShown: false}}
       />
       <Stack.Screen

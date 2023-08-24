@@ -1,4 +1,4 @@
-import {Alert, StyleSheet, Text, View} from 'react-native';
+import {Alert, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import React, {useState} from 'react';
 import COLOR from '../assets/colors/Color';
 import {
@@ -11,7 +11,9 @@ import auth from '@react-native-firebase/auth';
 const Login = ({navigation}) => {
   const [email, setEmail] = useState();
   const [password, setPassword] = useState();
-
+  const [userNotFound, setUserNotFound] = useState(false);
+  const [invalidEmail, setInvalidEmail] = useState(false);
+  const [wrongPassword, setWrongPassword] = useState(false);
   const login = () => {
     auth()
       .signInWithEmailAndPassword(email, password)
@@ -20,17 +22,15 @@ const Login = ({navigation}) => {
         navigation.replace('BottomNavigator');
       })
       .catch(error => {
-        if (error.code === 'auth/email-already-in-use') {
-          console.log('That email address is already in use!');
-          Alert.alert(
-            'email-already-in-use',
-            'That email address is already in use!',
-          );
+        if (error.code === 'auth/user-not-found') {
+          setUserNotFound(true);
         }
 
         if (error.code === 'auth/invalid-email') {
-          console.log('That email address is invalid!');
-          Alert.alert('invalid-email', 'That email address is invalid!');
+          setInvalidEmail(true);
+        }
+        if (error.code === 'auth/wrong-password') {
+          setWrongPassword(true);
         }
 
         console.error(error);
@@ -57,6 +57,16 @@ const Login = ({navigation}) => {
         }}
         imgSource={require('../assets/icons/email.png')}
       />
+      {userNotFound ? (
+        <Text style={styles.warning}>User Not Found</Text>
+      ) : (
+        <View></View>
+      )}
+      {userNotFound ? (
+        <Text style={styles.warning}>User Not Found</Text>
+      ) : (
+        <View></View>
+      )}
       <CostomInputField
         value={password}
         placeholder={'Enter Password'}
@@ -65,17 +75,21 @@ const Login = ({navigation}) => {
         }}
         imgSource={require('../assets/icons/password.png')}
       />
+      {wrongPassword ? (
+        <Text style={styles.warning}>Wrong Password</Text>
+      ) : (
+        <View></View>
+      )}
       {/* 10% screen height with Heading */}
       <View style={styles.buttonContainer}>
         <CostomButton title={'Login'} onClick={login} />
       </View>
       {/* 10% screen height with Heading */}
-      <View style={styles.loginContainer}>
-        <Text style={styles.description}>
-          <Text style={{color: COLOR.purple}}> Log In ?</Text> If you already
-          have an account
-        </Text>
-      </View>
+      <TouchableOpacity
+        style={styles.loginContainer}
+        onPress={() => navigation.navigate('ForgetPassword')}>
+        <Text style={styles.description}>Forget Password?</Text>
+      </TouchableOpacity>
     </View>
   );
 };
@@ -120,4 +134,9 @@ const styles = StyleSheet.create({
     marginTop: -30,
   },
   password: {},
+  warning: {
+    fontSize: 12,
+    color: 'red',
+    marginLeft: 25,
+  },
 });

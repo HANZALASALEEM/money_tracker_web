@@ -55,7 +55,7 @@ const OnBoardingScreen3 = ({navigation}) => {
         <TouchableOpacity
           style={styles.forwordButton}
           onPress={() => {
-            navigation.navigate('SignUp');
+            navigation.replace('SignUp');
           }}>
           <Text style={styles.forwordButtonText}>Get Started</Text>
         </TouchableOpacity>

@@ -20,80 +20,50 @@ import auth from '@react-native-firebase/auth';
 const AddCostumer = ({navigation}) => {
   const [name, setName] = useState();
   const [isVisibleModal, setIsVisibleModal] = useState(false);
-  const [image, setImage] = useState();
-  const [fileName, setFileName] = useState();
+  const [id, setId] = useState();
+  // const [fileName, setFileName] = useState();
 
-  // const handleImagePicker = () => {
-  //   setIsVisibleModal(true);
+  // const saveData = () => {
+  //   firestore()
+  //     .collection('Users')
+  //     .doc(auth().currentUser.uid)
+  //     .collection('Contacts')
+  //     .doc()
+  //     .set({
+  //       name: name,
+  //       id: id,
+  //     })
+  //     .then(() => {
+  //       console.log('User added!');
+  //     });
   // };
 
-  // const openGallery = async () => {
-  //   const options = {
-  //     mediaType: 'photo',
-  //     quality: 1,
-  //   };
-  //   launchImageLibrary(options, response => {
-  //     if (response.didCancel) {
-  //       console.log('Image picker was canceled');
-  //     } else if (response.error) {
-  //       console.error('Image picker error: ', response.error);
-  //     } else {
-  //       console.log('Selected image:', response.assets[0].uri);
-  //       // You can do something with the selected image URI here
-  //     }
-  //     setImage(response.assets[0].uri);
-  //     setFileName(response.assets[0].fileName);
-  //   });
-  //   setIsVisibleModal(false);
-  //   uploadImage();
-  // };
+  const [idWarning, setIdWarning] = useState('');
+  const [fileName, setFileName] = useState('');
 
-  // const openCamera = async () => {
-  //   const options = {
-  //     mediaType: 'photo',
-  //     quality: 1,
-  //   };
-  //   launchCamera(options, response => {
-  //     if (response.didCancel) {
-  //       console.log('Image picker was canceled');
-  //     } else if (response.error) {
-  //       console.error('Image picker error: ', response.error);
-  //     } else {
-  //       console.log('Selected image:', response.assets[0].uri);
-  //       // You can do something with the selected image URI here
-  //     }
+  const checkAndSaveData = async () => {
+    if (!id || id.length !== 4) {
+      setIdWarning('ID must be 4 digits long');
+      return;
+    }
 
-  //     setImage(response.assets[0].uri);
-  //     setFileName(response.assets[0].fileName);
-  //   });
-  //   setIsVisibleModal(false);
-  //   uploadImage();
-  // };
+    const userRef = firestore().collection('Users').doc(auth().currentUser.uid);
+    const contactsRef = userRef.collection('Contacts');
 
-  const userId = uuid.v4();
-  const saveData = () => {
-    firestore()
-      .collection('Users')
-      .doc(auth().currentUser.uid)
-      .collection('Contacts')
-      .doc(userId)
-      .set({
+    // Check if the provided ID already exists for the current user
+    const snapshot = await contactsRef.where('id', '==', id).get();
+
+    if (!snapshot.empty) {
+      setIdWarning('ID already exists');
+    } else {
+      // Add the customer data since the ID is unique
+      await contactsRef.add({
         name: name,
-        id: userId,
-      })
-      .then(() => {
-        console.log('User added!');
+        id: id,
       });
-  };
 
-  const uploadImage = async () => {
-    const reference = storage().ref(fileName);
-    // path to existing file on filesystem
-    const pathToFile = image;
-    // uploads file
-    await reference.putFile(pathToFile);
-    const url = await storage().ref(fileName).getDownloadURL();
-    saveData(url);
+      navigation.goBack();
+    }
   };
 
   return (
@@ -130,9 +100,18 @@ const AddCostumer = ({navigation}) => {
           }}
           imgSource={require('../../assets/icons/profile-user.png')}
         />
+        <CostomInputField
+          value={id}
+          placeholder={'Add Costumer ID'}
+          ChangeText={text => {
+            setId(text);
+          }}
+          imgSource={require('../../assets/icons/id.png')}
+        />
+        <Text style={styles.idWarning}>{idWarning}</Text>
       </View>
       <View style={styles.buttonContainer}>
-        <CostomButton title={'Add Costumer'} onClick={saveData} />
+        <CostomButton title={'Add Costumer'} onClick={checkAndSaveData} />
       </View>
       {/* <ModelView
         isVisibleModal={isVisibleModal}
@@ -178,6 +157,10 @@ const styles = StyleSheet.create({
   },
   inputContainer: {
     marginTop: 40,
+  },
+  idWarning: {
+    marginLeft: 35,
+    fontSize: 12,
   },
   buttonContainer: {
     marginTop: 70,

@@ -9,6 +9,8 @@ import com.facebook.react.defaults.DefaultNewArchitectureEntryPoint;
 import com.facebook.react.defaults.DefaultReactNativeHost;
 import com.facebook.soloader.SoLoader;
 import java.util.List;
+import java.util.Arrays;
+import com.christopherdro.htmltopdf.RNHTMLtoPDFPackage;
 
 public class MainApplication extends Application implements ReactApplication {
 
@@ -19,6 +21,7 @@ public class MainApplication extends Application implements ReactApplication {
           return BuildConfig.DEBUG;
         }
 
+       
         @Override
         protected List<ReactPackage> getPackages() {
           @SuppressWarnings("UnnecessaryLocalVariable")
@@ -43,6 +46,7 @@ public class MainApplication extends Application implements ReactApplication {
           return BuildConfig.IS_HERMES_ENABLED;
         }
       };
+
 
   @Override
   public ReactNativeHost getReactNativeHost() {

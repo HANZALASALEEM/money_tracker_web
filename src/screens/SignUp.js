@@ -1,5 +1,5 @@
 import {Alert, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import COLOR from '../assets/colors/Color';
 import {
   heightPercentageToDP as hp,
@@ -12,8 +12,17 @@ import firestore from '@react-native-firebase/firestore';
 import uuid from 'react-native-uuid';
 const SignUp = ({navigation}) => {
   const [email, setEmail] = useState();
-  const [number, setNumber] = useState();
+  const [number, setNumber] = useState(null);
   const [password, setPassword] = useState();
+  const [emailAlreadyFound, setEmailAlreadyFound] = useState(false);
+  const [invalidEmail, setInvalidEmail] = useState(false);
+  const [weakPassword, setWeakPassword] = useState(false);
+  const [isNumberAvalible, setIsNumberAvalible] = useState(false);
+
+  useEffect(() => {
+    setEmailAlreadyFound(false);
+    setInvalidEmail(false);
+  }, []);
 
   const userId = uuid.v4();
   const storeProfile = () => {
@@ -36,29 +45,31 @@ const SignUp = ({navigation}) => {
   };
 
   const signUp = () => {
-    auth()
-      .createUserWithEmailAndPassword(email, password)
-      .then(() => {
-        console.log('User account created & signed in!');
-        storeProfile();
-        navigation.replace('BottomNavigator');
-      })
-      .catch(error => {
-        if (error.code === 'auth/email-already-in-use') {
-          console.log('That email address is already in use!');
-          Alert.alert(
-            'email-already-in-use',
-            'That email address is already in use!',
-          );
-        }
+    if (number === null) {
+      setIsNumberAvalible(true);
+    } else {
+      auth()
+        .createUserWithEmailAndPassword(email, password)
+        .then(() => {
+          console.log('User account created & signed in!');
+          storeProfile();
+          navigation.replace('BottomNavigator');
+        })
+        .catch(error => {
+          if (error.code === 'auth/email-already-in-use') {
+            setEmailAlreadyFound(true);
+          }
 
-        if (error.code === 'auth/invalid-email') {
-          console.log('That email address is invalid!');
-          Alert.alert('invalid-email', 'That email address is invalid!');
-        }
+          if (error.code === 'auth/invalid-email') {
+            setInvalidEmail(true);
+          }
+          if (error.code === 'auth/weak-password') {
+            setWeakPassword(true);
+          }
 
-        console.error(error);
-      });
+          console.error(error);
+        });
+    }
   };
 
   return (
@@ -81,6 +92,16 @@ const SignUp = ({navigation}) => {
         }}
         imgSource={require('../assets/icons/email.png')}
       />
+      {emailAlreadyFound ? (
+        <Text style={styles.warning}>This Email already in use</Text>
+      ) : (
+        <View></View>
+      )}
+      {invalidEmail ? (
+        <Text style={styles.warning}>This is a invalid Email</Text>
+      ) : (
+        <View></View>
+      )}
       <CostomInputField
         value={number}
         placeholder={'Enter Mobile No'}
@@ -89,6 +110,11 @@ const SignUp = ({navigation}) => {
         }}
         imgSource={require('../assets/icons/call.png')}
       />
+      {isNumberAvalible ? (
+        <Text style={styles.warning}>Please enter phone number</Text>
+      ) : (
+        <View></View>
+      )}
       <CostomInputField
         value={password}
         placeholder={'Enter Password'}
@@ -97,13 +123,20 @@ const SignUp = ({navigation}) => {
         }}
         imgSource={require('../assets/icons/password.png')}
       />
+      {weakPassword ? (
+        <Text style={styles.warning}>
+          Password should be at least 6 characters
+        </Text>
+      ) : (
+        <View></View>
+      )}
       {/* 10% screen height with Heading */}
       <View style={styles.buttonContainer}>
         <CostomButton title={'Sign Up'} onClick={signUp} />
       </View>
       {/* 10% screen height with Heading */}
       <View style={styles.loginContainer}>
-        <TouchableOpacity onPress={() => navigation.replace('Login')}>
+        <TouchableOpacity onPress={() => navigation.navigate('Login')}>
           <Text style={{color: COLOR.purple}}> Log In ?</Text>
         </TouchableOpacity>
         <Text style={styles.description}>If you already have an account</Text>
@@ -153,4 +186,9 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
   },
   password: {},
+  warning: {
+    fontSize: 12,
+    color: 'red',
+    marginLeft: 25,
+  },
 });

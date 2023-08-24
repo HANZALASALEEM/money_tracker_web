@@ -58,7 +58,7 @@ const OnBoardingScreen2 = ({navigation}) => {
           <TouchableOpacity
             style={styles.forwordButton}
             onPress={() => {
-              navigation.navigate('OnBoardingScreen3');
+              navigation.replace('OnBoardingScreen3');
             }}>
             <Image
               source={require('../assets/icons/right-arrow.png')}

@@ -8,7 +8,7 @@ import firestore from '@react-native-firebase/firestore';
 
 import storage from '@react-native-firebase/storage';
 import auth from '@react-native-firebase/auth';
-const ItemDetailsLoanAccount = ({navigation, route}) => {
+const ItemDetailsCashInOut = ({navigation, route}) => {
   const [image, setImage] = useState(null);
   const [amount, setAmount] = useState();
   const [itemName, setItemName] = useState();
@@ -18,27 +18,36 @@ const ItemDetailsLoanAccount = ({navigation, route}) => {
     setImage(route.params.data.photo);
     setItemName(route.params.data.itemName);
     {
-      route.params.data.givenAmount !== null
-        ? setAmount(route.params.data.givenAmount)
-        : setAmount(route.params.data.takenAmount);
+      route.params.data.spendAmount !== null
+        ? setAmount(route.params.data.spendAmount)
+        : setAmount(route.params.data.earnedAmount);
     }
     setDate(route.params.data.date);
   }, []);
 
   const deleteButton = async () => {
-    firestore()
-      .collection('Users')
-      .doc(auth().currentUser.uid)
-      .collection('Transactions')
-      .doc(route.params.id)
-      .collection('Transaction')
-      .doc(route.params.data.key)
-      .delete()
-      .then(() => {
-        console.log('User deleted!');
-        navigation.goBack();
-        console.log(route.params.id);
-      });
+    try {
+      const querySnapshot = await firestore()
+        .collection('Users')
+        .doc(auth().currentUser.uid)
+        .collection('Transactions')
+        .doc(route.params.id)
+        .collection('Transaction')
+        .where('photo', '==', image)
+        .where('itemName', '==', itemName)
+        .where('date', '==', date)
+        .get();
+      if (querySnapshot.docs.length === 1) {
+        const documentSnapshot = querySnapshot.docs[0];
+        await documentSnapshot.ref.delete();
+        console.log('Document deleted successfully');
+        navigation.goBack(); // Navigate back after deletion or perform any other action you need
+      } else {
+        console.log('Document not found');
+      }
+    } catch (error) {
+      console.error('Error deleting document: ', error);
+    }
   };
 
   return (
@@ -68,20 +77,14 @@ const ItemDetailsLoanAccount = ({navigation, route}) => {
       <View style={styles.itemNameInputContainer}>
         <CostomInputField
           value={itemName}
-          placeholder={'Item Name'}
-          ChangeText={text => {
-            setItemName(text);
-          }}
+          placeholder={'See Item Name'}
           imgSource={require('../../assets/icons/notes.png')}
         />
       </View>
       <View style={styles.amountInputContainer}>
         <CostomInputField
           value={amount}
-          placeholder={'Amount'}
-          ChangeText={text => {
-            setAmount(text);
-          }}
+          placeholder={'See Amount'}
           imgSource={require('../../assets/icons/dollar.png')}
         />
       </View>
@@ -101,7 +104,7 @@ const ItemDetailsLoanAccount = ({navigation, route}) => {
   );
 };
 
-export default ItemDetailsLoanAccount;
+export default ItemDetailsCashInOut;
 
 const styles = StyleSheet.create({
   container: {

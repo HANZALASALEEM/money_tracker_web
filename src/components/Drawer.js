@@ -31,7 +31,7 @@ const Drawer = ({
   useEffect(() => {
     const readUserProfile = async () => {
       const userSnapshot = await firestore()
-        .collection('Profile')
+        .collection('Users')
         .doc(auth().currentUser.uid)
         .get();
 
