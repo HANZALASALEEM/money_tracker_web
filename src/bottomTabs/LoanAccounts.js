@@ -20,14 +20,13 @@ import Drawer from '../components/Drawer';
 import auth from '@react-native-firebase/auth';
 import firestore from '@react-native-firebase/firestore';
 const LoanAccounts = ({navigation}) => {
-  const [contactsAvalible, setContactAvalible] = useState(false);
   const [contacts, setContacts] = useState([]);
   const [isVisibleModal, setIsVisibleModal] = useState(false);
   const [user, setUser] = useState({}); // Initialize an empty user object
   const [contactList, setContactList] = useState([]);
   const [search, setSearch] = useState();
-  const [searchedList, setSearchedList] = useState(contactList);
-
+  const [searchedList, setSearchedList] = useState([]);
+  const [totalTakenAmount, setTotalTakenAmount] = useState(0);
   useEffect(() => {
     const readUserProfile = async () => {
       const userSnapshot = await firestore()
@@ -58,80 +57,53 @@ const LoanAccounts = ({navigation}) => {
           });
 
           setContactList(users);
-          setContactAvalible(true);
-          console.log(contactList);
-          // if (contactList.length !== 0) {
-          //   setContactAvalible(true);
-          // }
         });
       return () => subscriber();
     };
-
-    //   const subscriber = firestore()
-    //     .collection('Users')
-    //     .doc(auth().currentUser.uid)
-    //     .collection('Contacts')
-    //     .onSnapshot(querySnapshot => {
-    //       const users = [];
-
-    //       querySnapshot.forEach(documentSnapshot => {
-    //         users.push({
-    //           ...documentSnapshot.data(),
-    //           key: documentSnapshot.id,
-    //         });
-    //       });
-
-    //       setContactList(users);
-    //       setContactAvalible(true);
-    //       console.log(contactList);
-    //       if (contactList.length !== 0) {
-    //         setContactAvalible(true);
-    //       }
-    //     });
-    //   return () => subscriber();
-    // };
-    // const readContactList = () => {
-    //   const subscriber = firestore()
-    //     .collection('Users')
-    //     .doc(auth().currentUser.uid)
-    //     .collection('Contacts')
-    //     .onSnapshot(async querySnapshot => {
-    //       const users = [];
-
-    //       for (const documentSnapshot of querySnapshot.docs) {
-    //         const contactData = documentSnapshot.data();
-    //         const transactionsSnapshot = await documentSnapshot.ref
-    //           .collection('Transactions')
-    //           .get();
-    //         let takenAmount = 0;
-
-    //         transactionsSnapshot.forEach(transactionDoc => {
-    //           const transactionData = transactionDoc.data();
-    //           takenAmount += transactionData.takenAmount;
-    //         });
-
-    //         users.push({
-    //           ...contactData,
-    //           key: documentSnapshot.id,
-    //           takenAmount: takenAmount,
-    //         });
-    //       }
-
-    //       setContactList(users);
-    //       setContactAvalible(true);
-    //     });
-
-    //   return () => subscriber();
-    // };
     readContactList();
+    setSearchedList(contactList);
+    const calculateTotalTakenAmount = async currentUserId => {
+      try {
+        const transactionsSnapshot = await firestore()
+          .collection('Users')
+          .doc(currentUserId)
+          .collection('Transactions')
+          .get();
+
+        let totalTakenAmount = 0;
+
+        for (const transactionDoc of transactionsSnapshot.docs) {
+          const subCollectionSnapshot = await firestore()
+            .collection('Users')
+            .doc(currentUserId)
+            .collection('Transactions')
+            .doc(transactionDoc.id)
+            .collection('Transaction')
+            .get();
+
+          subCollectionSnapshot.forEach(subTransactionDoc => {
+            const subTransactionData = subTransactionDoc.data();
+            if (subTransactionData.takenAmount) {
+              totalTakenAmount += subTransactionData.takenAmount;
+            }
+          });
+        }
+
+        setTotalTakenAmount(totalTakenAmount);
+      } catch (error) {
+        console.error('Error calculating total taken amount:', error);
+        return 0; // Return 0 or an appropriate default value on error
+      }
+    };
+    calculateTotalTakenAmount();
   }, []);
 
-  const filterData = text => {
-    let newData = contactList.filter(item => {
-      // return item.displayNam.toLowerCase().match(text.toLowerCase());
+  const updateSearchResults = text => {
+    setSearch(text);
+    const newData = contactList.filter(item => {
       return item.name.toLowerCase().includes(text.toLowerCase());
     });
-    setContactList(newData);
+    setSearchedList(newData);
   };
 
   const getContacts = () => {
@@ -144,9 +116,6 @@ const LoanAccounts = ({navigation}) => {
         console.log('Permission: ', res);
         Contacts.getAll()
           .then(contacts => {
-            // const sortedContacts = contacts.sort((a, b) =>
-            //   a.displayName.localeCompare(b.displayName),
-            // );
             navigation.navigate('ContactList', {contacts});
           })
           .catch(e => {
@@ -194,15 +163,14 @@ const LoanAccounts = ({navigation}) => {
       <View style={styles.banner}>
         <CostomInputField
           value={search}
-          placeholder={'Search Costumer'}
+          placeholder={'Search Customer'}
           imgSource={require('../assets/icons/find.png')}
-          onChangeText={text => {
-            setSearch(text);
-            filterData(text);
+          ChangeText={text => {
+            updateSearchResults(text); // Use the updated function here
           }}
         />
       </View>
-      {contactList.length === 0 ? (
+      {searchedList.length === 0 ? (
         <View style={styles.wellcomeNote}>
           <Text style={styles.wellcomeNoteText}>
             To enhance your experience with the Loan Accounts Page, we invite
@@ -233,7 +201,7 @@ const LoanAccounts = ({navigation}) => {
             <View style={styles.accountDetailContainer}>
               <Text style={styles.accountDetailTitle}>Leny hn</Text>
               <Text style={styles.accountDetailAmount}>
-                Rs {contactList.takenAmount}
+                Rs {totalTakenAmount}
               </Text>
             </View>
             <View style={styles.accountDetailContainer}>
@@ -242,13 +210,14 @@ const LoanAccounts = ({navigation}) => {
             </View>
           </View>
           <FlatList
-            data={contactList}
+            data={searchedList}
             renderItem={({item}) => (
               <TouchableOpacity
                 style={styles.flatListEachContainer}
                 onPress={() => {
                   navigation.navigate('AccountDetails', {
                     name: item.name,
+                    number: item.number,
                     id: item.id,
                   });
                 }}>

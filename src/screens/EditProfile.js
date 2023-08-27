@@ -81,7 +81,8 @@ const EditProfile = ({navigation}) => {
         photo: url,
       })
       .then(() => {
-        console.log('User added!');
+        console.log('Profile Edited!');
+        navigation.replace('BottomNavigator');
       });
   };
 

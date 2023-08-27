@@ -60,6 +60,7 @@ const AddCostumer = ({navigation}) => {
       await contactsRef.add({
         name: name,
         id: id,
+        number: null,
       });
 
       navigation.goBack();

@@ -26,28 +26,17 @@ const ItemDetailsCashInOut = ({navigation, route}) => {
   }, []);
 
   const deleteButton = async () => {
-    try {
-      const querySnapshot = await firestore()
-        .collection('Users')
-        .doc(auth().currentUser.uid)
-        .collection('Transactions')
-        .doc(route.params.id)
-        .collection('Transaction')
-        .where('photo', '==', image)
-        .where('itemName', '==', itemName)
-        .where('date', '==', date)
-        .get();
-      if (querySnapshot.docs.length === 1) {
-        const documentSnapshot = querySnapshot.docs[0];
-        await documentSnapshot.ref.delete();
-        console.log('Document deleted successfully');
-        navigation.goBack(); // Navigate back after deletion or perform any other action you need
-      } else {
-        console.log('Document not found');
-      }
-    } catch (error) {
-      console.error('Error deleting document: ', error);
-    }
+    firestore()
+      .collection('Users')
+      .doc(auth().currentUser.uid)
+      .collection('CashInOut')
+      .doc(route.params.data.key)
+      .delete()
+      .then(() => {
+        console.log('User deleted!');
+        navigation.goBack();
+        console.log(route.params.id);
+      });
   };
 
   return (

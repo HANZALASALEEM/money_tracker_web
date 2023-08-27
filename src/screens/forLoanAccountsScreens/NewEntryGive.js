@@ -7,7 +7,6 @@ import CostomButton from '../../components/CostomButton';
 import {launchCamera, launchImageLibrary} from 'react-native-image-picker';
 import ModelView from '../../components/ModelView';
 import firestore from '@react-native-firebase/firestore';
-import uuid from 'react-native-uuid';
 import storage from '@react-native-firebase/storage';
 import auth from '@react-native-firebase/auth';
 import moment from 'moment';
@@ -63,7 +62,6 @@ const NewEntryGive = ({navigation, route}) => {
     setIsVisibleModal(false);
   };
 
-  const userId = uuid.v4();
   const saveData = url => {
     // const currentDate = new Date();
     // const formattedDate = currentDate.toISOString();
@@ -84,6 +82,7 @@ const NewEntryGive = ({navigation, route}) => {
       })
       .then(() => {
         console.log('User added!');
+        navigation.goBack();
       });
   };
 

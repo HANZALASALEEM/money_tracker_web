@@ -82,6 +82,7 @@ const NewEntryTake = ({navigation, route}) => {
       })
       .then(() => {
         console.log('User added!');
+        navigation.goBack();
       });
   };
 
@@ -103,7 +104,7 @@ const NewEntryTake = ({navigation, route}) => {
         onClickLeftIcon={() => {
           navigation.goBack();
         }}
-        title={'Give'}
+        title={'Take'}
       />
       <View style={styles.amountInputContainer}>
         <CostomInputField

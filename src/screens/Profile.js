@@ -47,7 +47,16 @@ const Profile = ({navigation}) => {
         </TouchableOpacity>
       </View>
       <View style={styles.details}>
-        <Image source={{uri: user.photo}} style={styles.image} />
+        <View style={styles.imageContainer}>
+          {user.photo === null ? (
+            <Image
+              source={require('../assets/icons/profile-user.png')}
+              style={styles.image}
+            />
+          ) : (
+            <Image source={{uri: user.photo}} style={styles.image} />
+          )}
+        </View>
         <View style={styles.viewFieldContainer}>
           <Text style={styles.heading}>Name</Text>
           <CostomViewField
@@ -94,12 +103,19 @@ const styles = StyleSheet.create({
     borderTopRightRadius: 50,
     borderTopLeftRadius: 50,
   },
-  image: {
+  imageContainer: {
     height: 150,
     width: 150,
     alignSelf: 'center',
     borderRadius: 75,
     marginTop: -75,
+    backgroundColor: COLOR.white,
+  },
+  image: {
+    height: 150,
+    width: 150,
+    alignSelf: 'center',
+    borderRadius: 75,
   },
   viewFieldContainer: {
     marginTop: 20,

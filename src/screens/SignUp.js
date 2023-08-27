@@ -45,7 +45,7 @@ const SignUp = ({navigation}) => {
   };
 
   const signUp = () => {
-    if (number === null) {
+    if (number === null && number.length <= 10) {
       setIsNumberAvalible(true);
     } else {
       auth()
@@ -111,7 +111,9 @@ const SignUp = ({navigation}) => {
         imgSource={require('../assets/icons/call.png')}
       />
       {isNumberAvalible ? (
-        <Text style={styles.warning}>Please enter phone number</Text>
+        <Text style={styles.warning}>
+          Please enter phone number of 11 letter
+        </Text>
       ) : (
         <View></View>
       )}

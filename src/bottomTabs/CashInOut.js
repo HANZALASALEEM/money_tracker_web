@@ -143,7 +143,29 @@ const CashInOut = ({navigation}) => {
           />
         </View>
       ) : (
-        <View></View>
+        <View style={styles.wellcomeNote}>
+          <Text style={styles.wellcomeNoteText}>
+            Take control of your finances by using the{' '}
+            <Text
+              style={[
+                styles.wellcomeNoteText,
+                {fontSize: 18, color: COLOR.purple, fontWeight: '700'},
+              ]}>
+              'Earned'
+            </Text>{' '}
+            button to log your income and the{' '}
+            <Text
+              style={[
+                styles.wellcomeNoteText,
+                {fontSize: 18, color: COLOR.purple, fontWeight: '700'},
+              ]}>
+              'Spend'
+            </Text>{' '}
+            button to track your expenses. Seamlessly manage and monitor your
+            financial journey through easy expense tracking. Start making
+            informed decisions today for a more secure financial future.
+          </Text>
+        </View>
       )}
 
       {/* Give and Take Buttons */}
@@ -192,12 +214,26 @@ const styles = StyleSheet.create({
     marginBottom: 5,
   },
   accountDetailAmount: {},
+  wellcomeNote: {
+    width: wp('95%'),
+    height: hp('70%'),
+    alignItems: 'center',
+    justifyContent: 'center',
+    alignSelf: 'center',
+  },
+  wellcomeNoteText: {
+    fontSize: 16,
+    textAlign: 'center',
+    color: COLOR.boldGray,
+  },
   itemDetailsContainer: {
     height: 50,
     width: wp('100%'),
     justifyContent: 'center',
     alignItems: 'center',
     flexDirection: 'row',
+    borderWidth: 0.5,
+    borderColor: COLOR.boldGray,
   },
   itemDetailsContainerDate: {
     width: '20%',

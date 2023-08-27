@@ -31,6 +31,8 @@ const AccountDetails = ({route, navigation}) => {
   const [totalTakenAmount, setTotalTakenAmount] = useState(0);
   const [totalGivenAmount, setTotalGivenAmount] = useState(0); // Initial empty array of users
   const [isVisibleModal, setIsVisibleModal] = useState(false);
+  const [isMenuCalled, setIsMenuCalled] = useState(false);
+
   const [isLoading, setIsLoading] = useState(false);
   const [count, setCount] = useState(1);
   const costumerID = route.params.id;
@@ -83,31 +85,11 @@ const AccountDetails = ({route, navigation}) => {
     readTransactionList();
   }, []);
 
-  const sendSMS = () => {
-    // if (mobileNumber.length != 10) {
-    //   alert('Please insert correct contact number');
-    // } else {
-    SendSMS.send(
-      {
-        // Message body
-        body: 'HANZALA',
-        // Recipients Number
-        recipients: ['923207409403'],
-        // An array of types
-        // "completed" response when using android
-        successTypes: ['sent', 'queued'],
-      },
-      (completed, cancelled, error) => {
-        if (completed) {
-          console.log('SMS Sent Completed');
-        } else if (cancelled) {
-          console.log('SMS Sent Cancelled');
-        } else if (error) {
-          console.log('Some error occured');
-        }
-      },
+  const makePhoneCall = phoneNumber => {
+    const phoneNumberWithCountryCode = `tel:${phoneNumber}`;
+    Linking.openURL(phoneNumberWithCountryCode).catch(error =>
+      console.error('Error making phone call: ', error),
     );
-    // }
   };
 
   const sendWhatsAppMessage = (phoneNumber, message) => {
@@ -248,6 +230,70 @@ const AccountDetails = ({route, navigation}) => {
     }
   };
 
+  const deleteAllTransactions = async () => {
+    const userUid = auth().currentUser.uid;
+    const customerId = route.params.id;
+
+    try {
+      const transactionSnapshot = await firestore()
+        .collection('Users')
+        .doc(userUid)
+        .collection('Transactions')
+        .doc(customerId)
+        .collection('Transaction')
+        .get();
+
+      const batch = firestore().batch();
+
+      transactionSnapshot.docs.forEach(doc => {
+        batch.delete(doc.ref);
+      });
+
+      await batch.commit();
+
+      console.log('All transactions deleted!');
+      navigation.goBack();
+    } catch (error) {
+      console.error('Error deleting transactions:', error);
+    }
+  };
+  const deleteCostomerButton = async () => {
+    const userUid = auth().currentUser.uid;
+    const customerId = route.params.id;
+
+    try {
+      const transactionSnapshot = await firestore()
+        .collection('Users')
+        .doc(userUid)
+        .collection('Transactions')
+        .doc(customerId)
+        .collection('Transaction')
+        .get();
+
+      const batch = firestore().batch();
+
+      transactionSnapshot.docs.forEach(doc => {
+        batch.delete(doc.ref);
+      });
+
+      await batch.commit();
+
+      firestore()
+        .collection('Users')
+        .doc(auth().currentUser.uid)
+        .collection('Contacts')
+        .doc(route.params.id)
+        .delete()
+        .then(() => {
+          console.log('User deleted!');
+          navigation.replace('BottomNavigator');
+          console.log(route.params.id);
+        });
+    } catch (error) {
+      console.error('Error deleting transactions:', error);
+    }
+  };
+
   return (
     <View style={styles.container}>
       <StatusBar backgroundColor={COLOR.purple} />
@@ -257,6 +303,10 @@ const AccountDetails = ({route, navigation}) => {
           navigation.goBack();
         }}
         title={route.params.name}
+        rightIcon={require('../../assets/icons/dots.png')}
+        onClickRightIcon={() => {
+          setIsMenuCalled(true);
+        }}
       />
       <View style={styles.accountSummary}>
         <View style={styles.accountDetailContainer}>
@@ -273,15 +323,17 @@ const AccountDetails = ({route, navigation}) => {
           <View style={styles.reminderContainer}>
             <TouchableOpacity
               style={styles.reminderEachContainer}
-              onPress={sendSMS}>
+              onPress={() => {
+                makePhoneCall(route.params.number);
+              }}>
               <Text style={styles.reminderEachContainerTitle}>
-                Remind via SMS
+                Remind via Call
               </Text>
             </TouchableOpacity>
             <TouchableOpacity
               style={styles.reminderEachContainer}
               onPress={sendWhatsAppMessage(
-                '+923207409403',
+                route.params.number,
                 'Hello from my React Native app!',
               )}>
               <Text style={styles.reminderEachContainerTitle}>
@@ -309,12 +361,12 @@ const AccountDetails = ({route, navigation}) => {
             renderItem={({item}) => (
               <TouchableOpacity
                 style={styles.flatListEachContainer}
-                onPress={() =>
+                onPress={() => {
                   navigation.navigate('ItemDetailsLoanAccount', {
                     data: item,
                     id: route.params.id,
-                  })
-                }>
+                  });
+                }}>
                 <Text style={styles.itemDetailsContainerDate}>{item.date}</Text>
                 <Text style={styles.itemDetailsContainerItemName}>
                   {item.itemName}
@@ -387,6 +439,16 @@ const AccountDetails = ({route, navigation}) => {
         onClickSecondOption={generateEXCELhandler}
         firstIcon={require('../../assets/icons/pdf.png')}
         secondIcon={require('../../assets/icons/excel.png')}
+      />
+      <ModelView
+        isVisibleModal={isMenuCalled}
+        firstOption={'Delete all Transactions'}
+        secondOption={'Delete Costumer'}
+        onClickClose={() => setIsVisibleModal(false)}
+        onClickFirstOption={deleteAllTransactions}
+        onClickSecondOption={deleteCostomerButton}
+        firstIcon={require('../../assets/icons/delete.png')}
+        secondIcon={require('../../assets/icons/remove-user.png')}
       />
     </View>
   );
@@ -461,6 +523,8 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     flexDirection: 'row',
+    borderWidth: 0.5,
+    borderColor: COLOR.boldGray,
   },
   itemDetailsContainerDate: {
     width: '20%',
@@ -479,6 +543,7 @@ const styles = StyleSheet.create({
     height: '100%',
     textAlignVertical: 'center',
     paddingLeft: 5,
+    color: 'red',
   },
   itemDetailsContainerGive: {
     width: '20%',
@@ -486,6 +551,7 @@ const styles = StyleSheet.create({
     textAlignVertical: 'center',
     paddingLeft: 5,
     paddingRight: 10,
+    color: 'green',
   },
   giveButton: {
     position: 'absolute',
