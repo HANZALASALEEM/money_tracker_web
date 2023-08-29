@@ -1,19 +1,31 @@
-import {StyleSheet, Text, View, StatusBar, Image} from 'react-native';
+import {
+  StyleSheet,
+  Text,
+  View,
+  StatusBar,
+  Image,
+  TouchableOpacity,
+  Linking,
+} from 'react-native';
 import React, {useEffect, useState} from 'react';
 import COLOR from '../../assets/colors/Color';
 import Header from '../../components/Header';
 import CostomInputField from '../../components/CostomInputField';
 import CostomButton from '../../components/CostomButton';
 import firestore from '@react-native-firebase/firestore';
-
-import storage from '@react-native-firebase/storage';
 import auth from '@react-native-firebase/auth';
+import CostomViewField from '../../components/CostomViewField';
+import {
+  widthPercentageToDP as wp,
+  heightPercentageToDP as hp,
+} from 'react-native-responsive-screen';
 const ItemDetailsLoanAccount = ({navigation, route}) => {
   const [image, setImage] = useState(null);
   const [amount, setAmount] = useState();
   const [itemName, setItemName] = useState();
   const [date, setDate] = useState();
-
+  const costumerNumber = route.params.costumerNumber;
+  const costumerName = route.params.costumerName;
   useEffect(() => {
     setImage(route.params.data.photo);
     setItemName(route.params.data.itemName);
@@ -24,6 +36,16 @@ const ItemDetailsLoanAccount = ({navigation, route}) => {
     }
     setDate(route.params.data.date);
   }, []);
+
+  const sendWhatsAppMessage = (phoneNumber, message) => {
+    const phoneNumberWithoutSpaces = phoneNumber.replace(/\s/g, ''); // Remove spaces
+    const whatsappUrl = `https://wa.me/${phoneNumberWithoutSpaces}?text=${encodeURIComponent(
+      message,
+    )}`;
+    Linking.openURL(whatsappUrl).catch(err =>
+      console.error('Error opening WhatsApp:', err),
+    );
+  };
 
   const deleteButton = async () => {
     firestore()
@@ -66,31 +88,47 @@ const ItemDetailsLoanAccount = ({navigation, route}) => {
         </View>
       </View>
       <View style={styles.itemNameInputContainer}>
-        <CostomInputField
-          value={itemName}
-          placeholder={'Item Name'}
-          ChangeText={text => {
-            setItemName(text);
-          }}
+        <CostomViewField
+          title={itemName}
           imgSource={require('../../assets/icons/notes.png')}
         />
       </View>
       <View style={styles.amountInputContainer}>
-        <CostomInputField
-          value={amount}
-          placeholder={'Amount'}
-          ChangeText={text => {
-            setAmount(text);
-          }}
+        <CostomViewField
+          title={amount}
           imgSource={require('../../assets/icons/dollar.png')}
         />
       </View>
       <View style={styles.amountInputContainer}>
-        <CostomInputField
-          value={date}
-          placeholder={'See Date'}
+        <CostomViewField
+          title={date}
           imgSource={require('../../assets/icons/date.png')}
         />
+      </View>
+
+      <View style={styles.reminderContainer}>
+        <TouchableOpacity
+          style={styles.reminderEachContainer}
+          onPress={() => {}}>
+          <Text style={styles.reminderEachContainerTitle}>Remind via SMS</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={styles.reminderEachContainer}
+          onPress={() => {
+            let message;
+            if (route.params.data.givenAmount !== null) {
+              message = `I provided ${costumerName} with Rs ${route.params.data.takenAmount}. Kindly process the return at your earliest convenience.`;
+            } else {
+              message = `${costumerName} has provided me with Rs ${route.params.data.givenAmount}. Please be prepared to receive the funds back as soon as possible.`;
+            }
+
+            sendWhatsAppMessage(costumerNumber, message);
+          }}>
+          <Text style={styles.reminderEachContainerTitle}>
+            Remind via WhatsApp
+          </Text>
+        </TouchableOpacity>
       </View>
 
       {/* Save Button */}
@@ -109,7 +147,7 @@ const styles = StyleSheet.create({
     backgroundColor: COLOR.white,
   },
   imageMajorContainer: {
-    marginTop: 30,
+    marginTop: 20,
   },
   imageContainer: {
     width: 270,
@@ -129,10 +167,33 @@ const styles = StyleSheet.create({
     height: 24,
   },
   itemNameInputContainer: {
-    marginTop: 20,
+    marginTop: 10,
   },
   amountInputContainer: {
     marginTop: 10,
+  },
+  reminderContainer: {
+    marginTop: 10,
+    height: 60,
+    width: wp('100%'),
+    backgroundColor: COLOR.lightGray,
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    alignItems: 'center',
+  },
+  reminderEachContainer: {
+    height: 50,
+    width: '45%',
+    backgroundColor: COLOR.darkGray,
+    marginHorizontal: 5,
+    borderRadius: 5,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  reminderEachContainerTitle: {
+    fontSize: 14,
+    color: COLOR.purple,
+    fontWeight: '900',
   },
   deleteButtonContainer: {
     position: 'absolute',

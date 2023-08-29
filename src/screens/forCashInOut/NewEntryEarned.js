@@ -1,4 +1,4 @@
-import {StatusBar, StyleSheet, Text, View} from 'react-native';
+import {StatusBar, StyleSheet, Text, View, ToastAndroid} from 'react-native';
 import React, {useState} from 'react';
 import COLOR from '../../assets/colors/Color';
 import Header from '../../components/Header';

@@ -100,10 +100,14 @@ const LoanAccounts = ({navigation}) => {
 
   const updateSearchResults = text => {
     setSearch(text);
-    const newData = contactList.filter(item => {
-      return item.name.toLowerCase().includes(text.toLowerCase());
-    });
-    setSearchedList(newData);
+    if (text === null || text.length === 0) {
+      setSearchedList(contactList);
+    } else {
+      const newData = contactList.filter(item => {
+        return item.name.toLowerCase().includes(text.toLowerCase());
+      });
+      setSearchedList(newData);
+    }
   };
 
   const getContacts = () => {
@@ -170,7 +174,7 @@ const LoanAccounts = ({navigation}) => {
           }}
         />
       </View>
-      {searchedList.length === 0 ? (
+      {contactList.length === 0 ? (
         <View style={styles.wellcomeNote}>
           <Text style={styles.wellcomeNoteText}>
             To enhance your experience with the Loan Accounts Page, we invite
@@ -197,7 +201,7 @@ const LoanAccounts = ({navigation}) => {
         </View>
       ) : (
         <View style={styles.afterContactsContainer}>
-          <View style={styles.accountSummary}>
+          {/* <View style={styles.accountSummary}>
             <View style={styles.accountDetailContainer}>
               <Text style={styles.accountDetailTitle}>Leny hn</Text>
               <Text style={styles.accountDetailAmount}>
@@ -208,9 +212,9 @@ const LoanAccounts = ({navigation}) => {
               <Text style={styles.accountDetailTitle}>Deny hn</Text>
               <Text style={styles.accountDetailAmount}>Rs 500</Text>
             </View>
-          </View>
+          </View> */}
           <FlatList
-            data={searchedList}
+            data={search.length !== 0 ? searchedList : contactList}
             renderItem={({item}) => (
               <TouchableOpacity
                 style={styles.flatListEachContainer}

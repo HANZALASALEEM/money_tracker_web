@@ -9,6 +9,7 @@ import {
   Alert,
   Pressable,
   PermissionsAndroid,
+  ToastAndroid,
 } from 'react-native';
 import React, {useState, useEffect} from 'react';
 import Header from '../../components/Header';
@@ -36,6 +37,8 @@ const AccountDetails = ({route, navigation}) => {
   const [isLoading, setIsLoading] = useState(false);
   const [count, setCount] = useState(1);
   const costumerID = route.params.id;
+  const costumerNumber = route.params.number;
+  const costumerName = route.params.name;
   useEffect(() => {
     const readTransactionList = () => {
       const subscriber = firestore()
@@ -86,21 +89,17 @@ const AccountDetails = ({route, navigation}) => {
   }, []);
 
   const makePhoneCall = phoneNumber => {
-    const phoneNumberWithCountryCode = `tel:${phoneNumber}`;
-    Linking.openURL(phoneNumberWithCountryCode).catch(error =>
-      console.error('Error making phone call: ', error),
-    );
-  };
-
-  const sendWhatsAppMessage = (phoneNumber, message) => {
-    const phoneNumberWithoutSpaces = phoneNumber.replace(/\s/g, ''); // Remove spaces
-    const whatsappUrl = `https://wa.me/${phoneNumberWithoutSpaces}?text=${encodeURIComponent(
-      message,
-    )}`;
-
-    Linking.openURL(whatsappUrl).catch(err =>
-      console.error('Error opening WhatsApp:', err),
-    );
+    if (phoneNumber === null) {
+      ToastAndroid.show(
+        'Apologies, customer number is unavailable.',
+        ToastAndroid.LONG,
+      );
+    } else {
+      const phoneNumberWithCountryCode = `tel:${phoneNumber}`;
+      Linking.openURL(phoneNumberWithCountryCode).catch(error =>
+        console.log(error),
+      );
+    }
   };
 
   // Generate PDF
@@ -302,7 +301,7 @@ const AccountDetails = ({route, navigation}) => {
         onClickLeftIcon={() => {
           navigation.goBack();
         }}
-        title={route.params.name}
+        title={costumerName}
         rightIcon={require('../../assets/icons/dots.png')}
         onClickRightIcon={() => {
           setIsMenuCalled(true);
@@ -324,22 +323,22 @@ const AccountDetails = ({route, navigation}) => {
             <TouchableOpacity
               style={styles.reminderEachContainer}
               onPress={() => {
-                makePhoneCall(route.params.number);
+                makePhoneCall(null);
               }}>
               <Text style={styles.reminderEachContainerTitle}>
                 Remind via Call
               </Text>
             </TouchableOpacity>
-            <TouchableOpacity
+            {/* <TouchableOpacity
               style={styles.reminderEachContainer}
               onPress={sendWhatsAppMessage(
-                route.params.number,
+                costumerNumber,
                 'Hello from my React Native app!',
               )}>
               <Text style={styles.reminderEachContainerTitle}>
                 Remind via WhatsApp
               </Text>
-            </TouchableOpacity>
+            </TouchableOpacity> */}
             <TouchableOpacity
               style={styles.reminderEachContainer}
               onPress={() => {
@@ -364,10 +363,14 @@ const AccountDetails = ({route, navigation}) => {
                 onPress={() => {
                   navigation.navigate('ItemDetailsLoanAccount', {
                     data: item,
-                    id: route.params.id,
+                    id: costumerID,
+                    costumerNumber: costumerNumber,
+                    costumerName: costumerName,
                   });
                 }}>
-                <Text style={styles.itemDetailsContainerDate}>{item.date}</Text>
+                <Text style={styles.itemDetailsContainerDateText}>
+                  {item.date}
+                </Text>
                 <Text style={styles.itemDetailsContainerItemName}>
                   {item.itemName}
                 </Text>
@@ -471,7 +474,7 @@ const styles = StyleSheet.create({
   },
   accountDetailContainer: {
     height: 70,
-    width: 180,
+    width: wp('45%'),
     backgroundColor: COLOR.darkGray,
     borderRadius: 10,
     alignItems: 'center',
@@ -500,12 +503,12 @@ const styles = StyleSheet.create({
     width: wp('100%'),
     backgroundColor: COLOR.lightGray,
     flexDirection: 'row',
-    justifyContent: 'space-between',
+    justifyContent: 'space-around',
     alignItems: 'center',
   },
   reminderEachContainer: {
     height: 50,
-    width: 120,
+    width: '40%',
     backgroundColor: COLOR.darkGray,
     marginHorizontal: 5,
     borderRadius: 5,
@@ -531,6 +534,9 @@ const styles = StyleSheet.create({
     height: '100%',
     paddingLeft: 5,
     textAlignVertical: 'center',
+  },
+  itemDetailsContainerDateText: {
+    fontSize: 11,
   },
   itemDetailsContainerItemName: {
     width: '40%',

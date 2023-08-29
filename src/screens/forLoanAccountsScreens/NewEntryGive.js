@@ -1,4 +1,4 @@
-import {StatusBar, StyleSheet, Text, View} from 'react-native';
+import {StatusBar, StyleSheet, Text, View, ToastAndroid} from 'react-native';
 import React, {useState} from 'react';
 import COLOR from '../../assets/colors/Color';
 import Header from '../../components/Header';
@@ -63,8 +63,10 @@ const NewEntryGive = ({navigation, route}) => {
   };
 
   const saveData = url => {
-    // const currentDate = new Date();
-    // const formattedDate = currentDate.toISOString();
+    ToastAndroid.show(
+      'Uploading data, please wait a moment.',
+      ToastAndroid.LONG,
+    );
     const formattedDate = moment().format('YYYY-MM-DD');
     firestore()
       .collection('Users')
@@ -81,19 +83,22 @@ const NewEntryGive = ({navigation, route}) => {
         date: formattedDate,
       })
       .then(() => {
-        console.log('User added!');
         navigation.goBack();
       });
   };
 
   const uploadImage = async () => {
-    const reference = storage().ref(fileName);
-    // path to existing file on filesystem
-    const pathToFile = image;
-    // uploads file
-    await reference.putFile(pathToFile);
-    const url = await storage().ref(fileName).getDownloadURL();
-    saveData(url);
+    if (image) {
+      const reference = storage().ref(fileName);
+      // path to existing file on filesystem
+      const pathToFile = image;
+      // uploads file
+      await reference.putFile(pathToFile);
+      const url = await storage().ref(fileName).getDownloadURL();
+      saveData(url);
+    } else {
+      saveData(null); // Pass null to saveData if no image is added
+    }
   };
 
   return (

@@ -5,6 +5,7 @@ import {
   StatusBar,
   Image,
   TouchableOpacity,
+  ToastAndroid,
 } from 'react-native';
 import React, {useState} from 'react';
 import COLOR from '../assets/colors/Color';
@@ -71,8 +72,11 @@ const EditProfile = ({navigation}) => {
     setIsVisibleModal(false);
   };
 
-  const userId = uuid.v4();
   const saveData = url => {
+    ToastAndroid.show(
+      'Uploading data, please wait a moment.',
+      ToastAndroid.LONG,
+    );
     firestore()
       .collection('Users')
       .doc(auth().currentUser.uid)
@@ -81,19 +85,22 @@ const EditProfile = ({navigation}) => {
         photo: url,
       })
       .then(() => {
-        console.log('Profile Edited!');
         navigation.replace('BottomNavigator');
       });
   };
 
   const uploadImage = async () => {
-    const reference = storage().ref(fileName);
-    // path to existing file on filesystem
-    const pathToFile = image;
-    // uploads file
-    await reference.putFile(pathToFile);
-    const url = await storage().ref(fileName).getDownloadURL();
-    saveData(url);
+    if (image) {
+      const reference = storage().ref(fileName);
+      // path to existing file on filesystem
+      const pathToFile = image;
+      // uploads file
+      await reference.putFile(pathToFile);
+      const url = await storage().ref(fileName).getDownloadURL();
+      saveData(url);
+    } else {
+      saveData(null); // Pass null to saveData if no image is added
+    }
   };
 
   return (
@@ -115,7 +122,7 @@ const EditProfile = ({navigation}) => {
         {image !== null ? (
           <Image
             source={{uri: image}}
-            style={[styles.imageContainer, {resizeMode: 'center'}]}
+            style={[styles.imageContainer, {resizeMode: 'stretch'}]}
           />
         ) : (
           <Image
